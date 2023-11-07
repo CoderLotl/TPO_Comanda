@@ -5,12 +5,14 @@ namespace Model\Services;
 use Model\Services\DataAccess;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Manager
 {
     /////////////////////////////////////////////////////////////
     #region - - - PUBLIC
-    public static function CreateEntity()
+    public static function CreateEntity($request, $response)
     {        
         $data = null;
         $table = $_POST['crear'];
@@ -39,7 +41,7 @@ class Manager
                 break;
         }
 
-        return $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos";
+        return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");        
     }
 
     public static function FindEntity()
@@ -47,8 +49,9 @@ class Manager
 
     }
 
-    public static function GetAllEntities(string $type)
+    public static function GetAllEntities($request, $response)
     {
+        $type = $_GET['entidad'];
         $data = DataAccess::Select($type);
         
         if($type == 'usuarios')
@@ -66,10 +69,10 @@ class Manager
             }
         }
 
-        return $data;
+        return self::ReturnResponse($request, $response, $data);
     }
 
-    public static function GetUsersByRole()
+    public static function GetUsersByRole($request, $response)
     {
         $data = DataAccess::SelectWithJoin(
             'usuarios', // tabla 1
@@ -79,7 +82,7 @@ class Manager
             'tipo', $_GET['buscar'], // donde col de tabla 2 = 'buscar'
             ['usuarios.user', 'tipo_usuario.tipo', 'usuarios.alta', 'usuarios.baja'] // datos a traer
         );
-        return $data ? $data : "No se encontraron usuarios de ese tipo";
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo");
     }
 
     public static function UpdateEntity()
@@ -89,6 +92,13 @@ class Manager
     #endregion
     /////////////////////////////////////////////////////////////
     #region - - - PRIVATE
+    private static function ReturnResponse($request, $response, $payload)
+    {
+        $response->getBody()->write(json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+
     private static function GetID($table)
     {
         $id = 0;

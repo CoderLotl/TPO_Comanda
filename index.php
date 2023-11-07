@@ -66,25 +66,11 @@ $app->get('/test', function (Request $request, Response $response)
 
 /////////////////////////////////////////////////////////////
 #region - - - ABM ROUTES - - -
-$app->get('/obtener_rol', function (Request $request, Response $response)
-{
-    $data = Manager::GetUsersByRole();
-    $response->getBody()->write(json_encode($data));
-    return $response->withHeader('Content-Type', 'application/json'); 
-});
 
-$app->get('/obtener', function (Request $request, Response $response)
-{
-    $data = Manager::GetAllEntities($_GET['entidad']);
-    $response->getBody()->write(json_encode($data));
-    return $response->withHeader('Content-Type', 'application/json');
-});
+$app->get('/obtener_rol', \Model\Services\Manager::class . '::GetUsersByRole');
 
-$app->post('/alta', function (Request $request, Response $response)
-{
-    $data = Manager::CreateEntity();
-    $response->getBody()->write(json_encode($data));
-    return $response->withHeader('Content-Type', 'application/json');
-});
+$app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');
+
+$app->post('/alta', \Model\Services\Manager::class . '::CreateEntity');
 
 $app->run();
