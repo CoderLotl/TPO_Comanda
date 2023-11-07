@@ -6,9 +6,6 @@ ini_set('display_errors', 1);
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/app/config/config.php';
 
-use Model\Services\DataAccess;
-use Model\Services\Manager;
-use Model\Utilities\Log;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
