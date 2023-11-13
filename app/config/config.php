@@ -22,7 +22,7 @@ define('ENTITIES',
     'User' =>       ['id', 'tipo', 'user', 'password'],
     'Product' =>    ['id', 'descripcion', 'tipo', 'precio', 'fechaAlta'],
     'Order' =>      ['id', 'codigoPedido', 'idMesa', 'idProducto', 'cantidadProducto', 'nombreCliente', 'estado', 'fecha'],
-    'Table' =>      ['id', 'codigoMesa'],
+    'Table' =>      ['id', 'codigo_mesa'],
 ]);
 
 define('USER_RIGHTS',

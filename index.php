@@ -69,7 +69,13 @@ $app->get('/obtener_rol', \Model\Services\Manager::class . '::GetUsersByRole');
 
 $app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');
 
-$app->post('/alta', \Model\Services\Manager::class . '::CreateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+$app->group('/alta', function (RouteCollectorProxy $group)
+{
+    $group->post('/mesas', \Model\Services\Manager::class . '::CreateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->post('/usuarios', \Model\Services\Manager::class . '::CreateEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->post('/productos', \Model\Services\Manager::class . '::CreateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->post('/pedidos', \Model\Services\Manager::class . '::CreateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+});
 
 $app->put('/modificar', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 

@@ -12,38 +12,6 @@ class Manager
 {
     /////////////////////////////////////////////////////////////
     #region - - - PUBLIC
-    public static function CreateEntity($request, $response)
-    {        
-        $data = null;
-        $table = $_POST['objeto'];
-        if(isset($_POST['col']))
-        {
-            $columns = $_POST['col'];
-        }
-        if(isset($_POST['val']))
-        {
-            $values = $_POST['val'];
-        }
-
-        switch($table)
-        {
-            case 'usuarios':
-                $data = self::CreateEmployee($table, $columns, $values);
-                break;
-            case 'mesas':
-                $data = self::CreateTable($table);
-                break;
-            case 'productos':
-                $data = self::CreateProduct($table, $columns, $values);
-                break;
-            case 'pedidos':
-                $data = self::CreateOrder($table, $columns, $values);
-                break;
-        }
-
-        return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");        
-    }
-
     public static function GetAllEntities($request, $response)
     {
         $type = $_GET['entidad'];
@@ -106,7 +74,6 @@ class Manager
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-
     private static function GetID($table)
     {
         $id = 0;
@@ -119,8 +86,12 @@ class Manager
         return $id;
     }
 
-    private static function CreateEmployee(string $table, array $columns, array $values)
+    public static function CreateEmployee($request, $response)
     {
+        $params = $request->getParsedBody();
+        $table = 'usuarios';
+        $columns = $params['col'];
+        $values = $params['val'];
         $id = self::GetID($table);
         $id += 1;
 
@@ -131,16 +102,18 @@ class Manager
 
         if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
         {
-            return DataAccess::Insert($table, $columns, $values);
+            $data = DataAccess::Insert($table, $columns, $values);
+            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {            
-            return false;
+            return self::ReturnResponse($request, $response, "Error interno.");
         }
     }
 
-    private static function CreateTable(string $table)
+    public static function CreateTable($request, $response)
     {
+        $table = 'mesas';
         $id = self::GetID($table);
         $id += 1;
         $columns = [];
@@ -170,20 +143,25 @@ class Manager
         }
 
         array_push($columns, 'id', 'codigo_mesa');
-        array_push($values, $id, $code);
+        array_push($values, $id, $code);        
 
         if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
         {
-            return DataAccess::Insert($table, $columns, $values);
+            $data = DataAccess::Insert($table, $columns, $values);
+            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {
-            return false;
+            return self::ReturnResponse($request, $response, "Error interno.");
         }
     }
 
-    private static function CreateProduct(string $table, array $columns, array $values)
+    public static function CreateProduct($request, $response)
     {
+        $params = $request->getParsedBody();
+        $table = 'productos';
+        $columns = $params['col'];
+        $values = $params['val'];
         $id = self::GetID($table);
         $id += 1;
 
@@ -193,16 +171,21 @@ class Manager
 
         if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
         {
-            return DataAccess::Insert($table, $columns, $values);
+            $data = DataAccess::Insert($table, $columns, $values);
+            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {
-            return false;
+            return self::ReturnResponse($request, $response, "Error interno.");
         }
     }
 
-    private static function CreateOrder(string $table, array $columns, array $values)
+    public static function CreateOrder($request, $response)
     {
+        $params = $request->getParsedBody();
+        $table = 'pedidos';
+        $columns = $params['col'];
+        $values = $params['val'];
         $id = self::GetID($table);
         $id += 1;
 
@@ -223,11 +206,12 @@ class Manager
         
         if(count(array_diff(ENTITIES['Order'], $columns)) == 0)
         {
-            return DataAccess::Insert($table, $columns, $values);
+            $data = DataAccess::Insert($table, $columns, $values);
+            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {
-            return false;
+            return self::ReturnResponse($request, $response, "Error interno.");
         }
     }
     #endregion
