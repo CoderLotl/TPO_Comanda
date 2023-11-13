@@ -10,7 +10,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
-
+use Model\Services\DataAccess;
+use Model\Utilities\Log;
 
 // Instantiate App
 $app = AppFactory::create();
@@ -68,6 +69,6 @@ $app->get('/obtener_rol', \Model\Services\Manager::class . '::GetUsersByRole');
 
 $app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');
 
-$app->post('/alta', \Model\Services\Manager::class . '::CreateEntity');
+$app->post('/alta', \Model\Services\Manager::class . '::CreateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 
 $app->run();

@@ -17,9 +17,22 @@ DataAccess::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // Current Region Time
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-define('ENTITIES', [
-                    'User' =>       ['id', 'tipo', 'user', 'password'],
-                    'Product' =>    ['id', 'descripcion', 'tipo', 'precio', 'fechaAlta'],
-                    'Order' =>      ['id', 'codigoPedido', 'idMesa', 'idProducto', 'cantidadProducto', 'nombreCliente', 'estado', 'fecha'],
-                    'Table' =>      ['id', 'codigoMesa'],
-                    ]);
+define('ENTITIES',
+[
+    'User' =>       ['id', 'tipo', 'user', 'password'],
+    'Product' =>    ['id', 'descripcion', 'tipo', 'precio', 'fechaAlta'],
+    'Order' =>      ['id', 'codigoPedido', 'idMesa', 'idProducto', 'cantidadProducto', 'nombreCliente', 'estado', 'fecha'],
+    'Table' =>      ['id', 'codigoMesa'],
+]);
+
+define('USER_RIGHTS',
+[
+    'bartender' => [],
+	'cervecero' => [],
+	'cocinero' => [],
+	'mozo' => ['alta' =>
+                    [
+                        'pedidos'
+                    ]],
+	'socio' => '*',
+]);

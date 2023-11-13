@@ -53,6 +53,14 @@ class DataAccess
         }
     }
 
+    /**
+     *
+        $query =    "SELECT {$queryColumn}
+            FROM {$table1}
+            JOIN {$table2} ON {$table1}.{$join1} = {$table2}.{$join2}
+            WHERE {$table2}.{$whereColumn} = '{$whereValue}'
+            ";
+     */
     public static function SelectWithJoin($table1, $table2, $join1, $join2, $whereColumn, $whereValue, $column = null)
     {        
         try

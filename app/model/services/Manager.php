@@ -15,7 +15,7 @@ class Manager
     public static function CreateEntity($request, $response)
     {        
         $data = null;
-        $table = $_POST['crear'];
+        $table = $_POST['objeto'];
         if(isset($_POST['col']))
         {
             $columns = $_POST['col'];
