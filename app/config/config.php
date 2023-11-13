@@ -27,12 +27,17 @@ define('ENTITIES',
 
 define('USER_RIGHTS',
 [
-    'bartender' => [],
-	'cervecero' => [],
-	'cocinero' => [],
-	'mozo' => ['alta' =>
-                    [
-                        'pedidos'
-                    ]],
+    'bartender' =>  [
+                        'modificar' => ['pedidos']
+                    ],
+	'cervecero' =>  [
+                        'modificar' => ['pedidos']
+                    ],
+	'cocinero' =>   [
+                        'modificar' => ['pedidos']
+                    ],
+	'mozo' =>       [
+                        'alta' => ['pedidos']
+                    ],
 	'socio' => '*',
 ]);
