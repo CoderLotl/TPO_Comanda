@@ -146,5 +146,30 @@ class DataAccess
             self::Catch($e);
         }
     }
+
+    public static function Update(string $table, array $columns, array $values, string $whereColumn, $whereValue)
+    {
+        try
+        {
+            $setClause = '';
+            $lastColumn = end($columns);
+            foreach($columns as $key => $col)
+            {
+                $setClause .= "`{$col}` = '{$values[$key]}'";
+                if($col != $lastColumn)
+                {
+                    $setClause .= ', ';
+                }
+            }
+            $query = "UPDATE `{$table}` SET {$setClause} WHERE `{$whereColumn}` = '{$whereValue}'";
+            $statement = self::$pdo->prepare($query);
+
+            return $statement->execute();
+        }
+        catch(Exception $e)
+        {
+            self::Catch($e);
+        }
+    }
     #endregion    
 }
