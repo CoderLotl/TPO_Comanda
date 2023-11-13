@@ -65,15 +65,7 @@ class Manager
         $data = DataAccess::Update($table, $columns, $values, $_PUT['where'], $_PUT['value']);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
-    #endregion
-    /////////////////////////////////////////////////////////////
-    #region - - - PRIVATE
-    private static function ReturnResponse($request, $response, $payload)
-    {
-        $response->getBody()->write(json_encode($payload));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
-
+    
     private static function GetID($table)
     {
         $id = 0;
@@ -213,6 +205,14 @@ class Manager
         {
             return self::ReturnResponse($request, $response, "Error interno.");
         }
+    }
+    #endregion
+    /////////////////////////////////////////////////////////////
+    #region - - - PRIVATE
+    private static function ReturnResponse($request, $response, $payload)
+    {
+        $response->getBody()->write(json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
     }
     #endregion
 }
