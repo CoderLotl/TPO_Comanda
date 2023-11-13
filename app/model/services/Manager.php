@@ -44,11 +44,6 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");        
     }
 
-    public static function FindEntity()
-    {
-
-    }
-
     public static function GetAllEntities($request, $response)
     {
         $type = $_GET['entidad'];
@@ -85,9 +80,22 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo");
     }
 
-    public static function UpdateEntity()
+    public static function UpdateEntity($request, $response)
     {
+        $_PUT = file_get_contents("php://input");        
+        $_PUT = json_decode($_PUT, true);
+        $table = $_PUT['objeto'];
+        if(isset($_PUT['col']))
+        {
+            $columns = $_PUT['col'];
+        }
+        if(isset($_PUT['val']))
+        {
+            $values = $_PUT['val'];
+        }
 
+        $data = DataAccess::Update($table, $columns, $values, $_PUT['where'], $_PUT['value']);
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     #endregion
     /////////////////////////////////////////////////////////////

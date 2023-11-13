@@ -8,10 +8,21 @@ use Model\Utilities\Log;
 class AuthMW
 {
     public static function ValidateUser($request, $handler)    
-    {                
-        $action = $_REQUEST['accion'];
-        $right = $_REQUEST['objeto'];
-        $userName = $_REQUEST['user'];
+    {
+        if($_SERVER['REQUEST_METHOD'] != 'PUT')
+        {
+            $action = $_REQUEST['accion'];
+            $right = $_REQUEST['objeto'];
+            $userName = $_REQUEST['user'];
+        }
+        else
+        {
+            $_PUT = file_get_contents("php://input");        
+            $_PUT = json_decode($_PUT, true);
+            $action = $_PUT['accion'];
+            $right = $_PUT['objeto'];
+            $userName = $_PUT['user'];
+        }
 
         if($userName)
         {

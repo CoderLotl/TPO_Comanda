@@ -71,4 +71,6 @@ $app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');
 
 $app->post('/alta', \Model\Services\Manager::class . '::CreateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 
+$app->put('/modificar', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+
 $app->run();
