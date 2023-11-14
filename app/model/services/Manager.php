@@ -2,6 +2,7 @@
 
 namespace Model\Services;
 
+use DateTime;
 use Model\Services\DataAccess;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
@@ -175,6 +176,7 @@ class Manager
     public static function CreateOrder($request, $response)
     {
         $params = $request->getParsedBody();
+        $uploadedFiles = $request->getUploadedFiles();
         $table = 'pedidos';
         $columns = $params['col'];
         $values = $params['val'];
@@ -197,8 +199,17 @@ class Manager
         array_push($values, $id, $date, $code);
         
         if(count(array_diff(ENTITIES['Order'], $columns)) == 0)
-        {
+        {            
+            if (isset($uploadedFiles['fotoMesa']))
+            {
+                $nombreCliente = $values[array_search('nombreCliente', $columns)];
+                $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $id . '.jpg';
+                $uploadedFiles['fotoMesa']->moveTo($targetPath);                
+                $columns['fotoMesa'] = $targetPath;
+            }
+            
             $data = DataAccess::Insert($table, $columns, $values);
+
             return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
