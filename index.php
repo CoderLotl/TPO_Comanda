@@ -65,6 +65,8 @@ $app->get('/test', function (Request $request, Response $response)
 /////////////////////////////////////////////////////////////
 #region - - - ABM ROUTES - - -
 
+$app->post('/login', \Model\Services\LoginManager::class . '::LogIn');
+
 $app->get('/obtener_rol', \Model\Services\Manager::class . '::GetUsersByRole');
 
 $app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');

@@ -36,6 +36,49 @@ class DataAccess
         }
     }
 
+    public static function SelectWhere(string $table, array $columns = null, array $whereColumn, array $whereValue)
+    {
+        try
+        {
+            $columnsClause = '';
+            if(!$columns)
+            {
+                $columnsClause = '*';
+            }
+            else
+            {
+                $lastColumn = end($columns);
+                foreach($columns as $col)
+                {
+                    $columnsClause .= "`{$col}`";
+                    if($col != $lastColumn)
+                    {
+                        $columnsClause .= ', ';
+                    }
+                }
+            }
+
+            $whereClause = '';
+            $lastColumn = end($whereColumn);
+            for($i = 0; $i < count($whereColumn); $i++)
+            {
+                $whereClause .= "{$whereColumn[$i]} = '{$whereValue[$i]}'";
+                if($whereColumn[$i] != $lastColumn)
+                {
+                    $whereClause .= ' AND ';
+                }
+            }
+
+            $statement = self::$pdo->prepare("SELECT $columnsClause FROM $table WHERE $whereClause");
+            $statement->execute();            
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
+        catch(Exception $e)
+        {
+            self::Catch($e);
+        }
+    }
+
     public static function SelectLast(string $table, string $column)
     {
         try
