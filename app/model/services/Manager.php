@@ -199,7 +199,11 @@ class Manager
         array_push($values, $id, $date, $code);
         
         if(count(array_diff(ENTITIES['Order'], $columns)) == 0)
-        {            
+        {
+            if(!is_dir('./img'))
+            {
+                mkdir('./img', 0777, true);
+            }
             if (isset($uploadedFiles['fotoMesa']))
             {
                 $nombreCliente = $values[array_search('nombreCliente', $columns)];
