@@ -54,17 +54,18 @@ class Manager
         $_PUT = file_get_contents("php://input");        
         $_PUT = json_decode($_PUT, true);
         $table = $_PUT['objeto'];
-        if(isset($_PUT['col']))
-        {
-            $columns = $_PUT['col'];
-        }
-        if(isset($_PUT['val']))
-        {
-            $values = $_PUT['val'];
-        }
+        $columns = $_PUT['col'];
+        $values = $_PUT['val'];
 
         $data = DataAccess::Update($table, $columns, $values, $_PUT['where'], $_PUT['value']);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+    }
+
+    public static function UpdateOrder($request, $response)
+    {
+        $_PUT = file_get_contents("php://input");        
+        $_PUT = json_decode($_PUT, true);
+        $table = 'pedidos';
     }
     
     private static function GetID($table)

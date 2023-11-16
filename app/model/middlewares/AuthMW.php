@@ -13,37 +13,49 @@ class AuthMW
         if($_SERVER['REQUEST_METHOD'] != 'PUT')
         {
             $action = $_REQUEST['accion'];
-            $right = $_REQUEST['objeto'];
-            $userName = $_REQUEST['user'];
+            $object = $_REQUEST['objeto'];            
             $token = $_REQUEST['token'];
+            $_req = $_REQUEST;
         }
         else
         {
             $_PUT = file_get_contents("php://input");        
             $_PUT = json_decode($_PUT, true);
+            $_req = $_PUT;
             $action = $_PUT['accion'];
-            $right = $_PUT['objeto'];
-            $userName = $_PUT['user'];
+            $object = $_PUT['objeto'];            
             $token = $_PUT['token'];
         }
+        
+        $userType = AuthJWT::GetData($token)->rol;            
+        
+        if( self::ValidateAction($action, $object, $userType, $_req) )
+        {
+            return $handler->handle($request);
+        }
 
-        if($userName)
+        throw new Exception('Este usuario no tiene este derecho.');        
+    }
+
+    public static function ValidateAction($action, $object, $userType, $_req)
+    {
+        if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...
         {
-            //$userType = DataAccess::SelectWithJoin('tipo_usuario', 'usuarios', 'codigo', 'tipo', 'user', $userName, ['tipo_usuario.tipo'])[0]['tipo'];
-            $userType = AuthJWT::GetData($token)->rol;            
-            
-            if( (USER_RIGHTS[$userType] == '*') || (in_array($action, USER_RIGHTS[$userType]) && in_array($right, USER_RIGHTS[$userType][$action])) )
-            {
-                return $handler->handle($request);
-            }
-            else
-            {
-                throw new Exception('Este usuario no tiene este derecho.');
-            }
+            return true;
         }
-        else
+        else if( in_array($action, USER_RIGHTS[$userType]) && in_array($object, USER_RIGHTS[$userType][$action]) ) // ... o si tiene el derecho, y tiene el derecho sobre ese tipo de objetos ...
         {
-            throw new Exception('No hay nombre de usuario.');
+            if( $action == 'modificar' )
+            {
+                $state = $_req['val'][array_search('estado', $_req['col'])];
+                if( !in_array($state, USER_RIGHTS[$userType][$action][$object]) )
+                {
+                    return false;
+                }                
+            }
+            return true;
         }
+        
+        return false;
     }
 }

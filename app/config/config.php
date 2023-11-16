@@ -28,17 +28,17 @@ define('ENTITIES',
 define('USER_RIGHTS',
 [
     'bartender' =>  [
-                        'modificar' => ['pedidos']
+                        'modificar' => ['pedidos' => [2, 3]]
                     ],
 	'cervecero' =>  [
-                        'modificar' => ['pedidos']
+                        'modificar' => ['pedidos' => [2, 3]]
                     ],
 	'cocinero' =>   [
-                        'modificar' => ['pedidos']
+                        'modificar' => ['pedidos' => [2, 3]]
                     ],
 	'mozo' =>       [
                         'alta' => ['pedidos'],
-                        'modificar' => ['pedidos'],
+                        'modificar' => ['pedidos' => [1, 4], 'mesas'],
                         'baja' => ['pedidos']
                     ],
 	'socio' => '*',
