@@ -66,6 +66,10 @@ class Manager
         $_PUT = file_get_contents("php://input");        
         $_PUT = json_decode($_PUT, true);
         $table = 'pedidos';
+        $state = $_PUT['estado'];
+        
+        $data = DataAccess::Update('pedidos', ['estado'], $state, $_PUT['where'], $_PUT['value']);
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     
     private static function GetID($table)

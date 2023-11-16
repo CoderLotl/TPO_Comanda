@@ -67,9 +67,11 @@ $app->get('/test', function (Request $request, Response $response)
 
 $app->post('/login', \Model\Services\LoginManager::class . '::LogIn');
 
-$app->get('/obtener_rol', \Model\Services\Manager::class . '::GetUsersByRole');
-
-$app->get('/obtener', \Model\Services\Manager::class . '::GetAllEntities');
+$app->group('/obtener', function (RouteCollectorProxy $group)
+{
+    $group->get('/entidades', \Model\Services\Manager::class . '::GetAllEntities');
+    $group->get('/rol', \Model\Services\Manager::class . '::GetUsersByRole');
+});
 
 $app->group('/alta', function (RouteCollectorProxy $group)
 {
@@ -79,6 +81,10 @@ $app->group('/alta', function (RouteCollectorProxy $group)
     $group->post('/pedidos', \Model\Services\Manager::class . '::CreateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 });
 
-$app->put('/modificar', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+$app->group('/modificar', function (RouteCollectorProxy $group)
+{
+    $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/orden', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+});
 
 $app->run();
