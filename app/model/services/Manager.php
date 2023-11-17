@@ -199,12 +199,37 @@ class Manager
         {
             if(in_array($key, ['estado', 'tiempoEstimado', 'tiempoInicio', 'tiempoEntregado', 'fechaBaja']))
             {
-                array_push($columns, $key);                
-                array_push($values, $val);                
+                if($val != '')
+                {
+                    array_push($columns, $key);                
+                    array_push($values, $val);
+                }
             }
         }       
         
         $data = DataAccess::Update('pedidos', $columns, $values, 'id', $id);
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+    }
+
+    public static function UpdateTable($request, $response)
+    {
+        $params = Blasphemy::GetRequest($request);
+        $id = $params['id'];
+        $columns = [];
+        $values = [];
+        foreach($params as $key => $val)
+        {
+            if(in_array($key, ['codigoMesa', 'estado']))
+            {
+                if($val != '')
+                {
+                    array_push($columns, $key);                
+                    array_push($values, $val);
+                }
+            }
+        }       
+        
+        $data = DataAccess::Update('mesas', $columns, $values, 'id', $id);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     

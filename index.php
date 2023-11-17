@@ -72,7 +72,7 @@ $app->group('/obtener', function (RouteCollectorProxy $group)
     $group->post('/entidades', \Model\Services\Manager::class . '::GetAllEntities')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->post('/rol', \Model\Services\Manager::class . '::GetUsersByRole')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->post('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
-    $group->post('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders'); // Devuelve todas las ordenes visibles para el tipo de usuario.
+    $group->post('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');; // Devuelve todas las ordenes visibles para el tipo de usuario.
 });
 
 $app->group('/alta', function (RouteCollectorProxy $group)
@@ -87,7 +87,7 @@ $app->group('/modificar', function (RouteCollectorProxy $group)
 {
     $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->put('/orden', \Model\Services\Manager::class . '::UpdateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateOrderModificationAction');
-    //$group->put()
+    $group->put('/mesa', \Model\Services\Manager::class . '::UpdateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 });
 
 $app->run();

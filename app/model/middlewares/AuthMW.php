@@ -135,4 +135,15 @@ class AuthMW
         }
         throw new Exception('Este usuario no tiene este derecho.'); 
     }
+
+    public static function WardMozo($request, $handler)
+    {
+        $params = Blasphemy::GetRequest($request);
+
+        if(isset($params['token']) && (self::GetRole($params['token']) == 'socio' || self::GetRole($params['token']) == 'mozo'))
+        {
+            return $handler->handle($request);
+        }
+        throw new Exception('Este usuario no tiene este derecho.'); 
+    }
 }
