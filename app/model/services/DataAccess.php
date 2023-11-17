@@ -104,7 +104,7 @@ class DataAccess
             WHERE {$table2}.{$whereColumn} = '{$whereValue}'
             ";
      */
-    public static function SelectWithJoin($table1, $table2, $join1, $join2, $whereColumn, $whereValue, $column = null)
+    public static function SelectWithJoin($table1, $table2, $join1, $join2, $whereColumn, $whereValue, $column = null, $noAssoc = null)
     {        
         try
         {
@@ -143,8 +143,15 @@ class DataAccess
                         WHERE {$table2}.{$whereColumn} = '{$whereValue}'
                         ";    
             $statement = self::$pdo->prepare($query);
-            $statement->execute();            
-            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $statement->execute();
+            if($noAssoc)
+            {
+                $result = $statement->fetch();
+            }
+            else
+            {
+                $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+            }
     
             return $result;
         }

@@ -37,6 +37,12 @@ class AuthMW
         throw new Exception('Este usuario no tiene este derecho.');        
     }
 
+    public static function GetRole($token)
+    {
+        $userType = AuthJWT::GetData($token)->rol;
+        return $userType;
+    }
+
     public static function ValidateAction($action, $object, $userType, $_req)
     {
         if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...

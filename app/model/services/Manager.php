@@ -3,11 +3,11 @@
 namespace Model\Services;
 
 use DateTime;
+use Model\Middlewares\AuthMW;
 use Model\Services\DataAccess;
+use Model\Utilities\Blasphemy;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Manager
 {
@@ -31,6 +31,103 @@ class Manager
                     }
                 }
             }
+        }
+
+        return self::ReturnResponse($request, $response, $data);
+    }
+
+    public static function GetOrdersByCode($request, $response)
+    {
+        $_req = $request->getQueryParams();
+        $code = $_req['codigo'];
+        $productos = DataAccess::Select('productos');
+        $rol = AuthMW::GetRole($_req['token']);
+        $data = null;
+        $productType = null;
+        
+        switch($rol)
+        {
+            case 'cervecero':
+                $productType = 'cerveza';
+                break;
+            case 'bartender':
+                $productType = 'bebida';
+                break;
+            case 'cocinero':
+                $productType = 'comida';
+                break;
+        }
+
+        if($productType)
+        {
+            $data = DataAccess::SelectWhere('pedidos', null, ['codigoPedido', 'tipoProducto'], [$code, $productType]);
+        }
+        else
+        {
+            $data = DataAccess::SelectWhere('pedidos', null, ['codigoPedido'], [$code]);
+        }
+
+        foreach($data as &$bit)
+        {
+            $nombreProducto = '';
+            for($i = 0; $i < count($productos); $i++)
+            {
+                if($productos[$i]['id'] == $bit['idProducto'])
+                {
+                    $nombreProducto = $productos[$i]['descripcion'];
+                    break;
+                }
+            }
+
+            $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+        }
+
+        return self::ReturnResponse($request, $response, $data);
+    }
+
+    public static function GetAllOrders($request, $response)
+    {        
+        $_req = $request->getQueryParams();        
+        $productos = DataAccess::Select('productos');
+        $rol = AuthMW::GetRole($_req['token']);
+        $data = null;
+        $productType = null;
+        
+        switch($rol)
+        {
+            case 'cervecero':
+                $productType = 'cerveza';
+                break;
+            case 'bartender':
+                $productType = 'bebida';
+                break;
+            case 'cocinero':
+                $productType = 'comida';
+                break;
+        }
+
+        if($productType)
+        {
+            $data = DataAccess::SelectWhere('pedidos', null, ['tipoProducto'], [$productType]);
+        }
+        else
+        {
+            $data = DataAccess::Select('pedidos', null);
+        }
+
+        foreach($data as &$bit)
+        {
+            $nombreProducto = '';
+            for($i = 0; $i < count($productos); $i++)
+            {
+                if($productos[$i]['id'] == $bit['idProducto'])
+                {
+                    $nombreProducto = $productos[$i]['descripcion'];
+                    break;
+                }
+            }
+
+            $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
         }
 
         return self::ReturnResponse($request, $response, $data);
@@ -183,11 +280,14 @@ class Manager
         $params = $request->getParsedBody();
         $uploadedFiles = $request->getUploadedFiles();
         $table = 'pedidos';
-        $columns = $params['col'];
-        $values = $params['val'];
-        $id = self::GetID($table);
-        $id += 1;
+        $idMesa = $params['idMesa'];
+        $idProductos = json_decode($params['idProductos']);
+        $cantidadProductos = json_decode($params['cantidadProductos']);
+        $tipoProductos = [];
+        $nombreCliente = $params['nombreCliente'];
+        $id = self::GetID($table);        
 
+        // ----------------------- ASSIGN ORDER CODE
         $currentCode = DataAccess::SelectLast('pedidos', 'codigoPedido');
         if($currentCode)
         {
@@ -197,38 +297,54 @@ class Manager
         {
             $code = 'AAAA1';
         }
-
+        // -----------------------
+        
+        foreach($idProductos as $product)
+        {
+            $pdo = DataAccess::$pdo;
+            $query = "SELECT tipo_producto.tipo FROM productos JOIN tipo_producto ON productos.tipo = tipo_producto.codigo WHERE productos.id = $product";            
+            $statement = $pdo->prepare($query);
+            $statement->execute();
+            $productType = $statement->fetch()['tipo'];            
+            array_push($tipoProductos, $productType);
+        }
+        
         $date = date("Y-m-d H:i:s");
 
-        array_push($columns, 'id', 'fecha','codigoPedido');
-        array_push($values, $id, $date, $code);
-        
-        if(count(array_diff(ENTITIES['Order'], $columns)) == 0)
+        // ----------------------- ORDER CREATION
+
+        for( $i = 0; $i < count($idProductos); $i ++)
         {
+            $id++;
+            $columns = ['id', 'codigoPedido', 'idMesa',	'idProducto', 'cantidadProducto', 'tipoProducto', 'nombreCliente', 'estado', 'fecha'];
+            $values = [$id, $code, $idMesa, $idProductos[$i], $cantidadProductos[$i], $tipoProductos[$i], $nombreCliente, 1, $date];
             if(!is_dir('./img'))
             {
                 mkdir('./img', 0777, true);
             }
             if (isset($uploadedFiles['fotoMesa']))
-            {
-                $nombreCliente = $values[array_search('nombreCliente', $columns)];
+            {            
                 $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $id . '.jpg';
                 $uploadedFiles['fotoMesa']->moveTo($targetPath);                
                 $columns['fotoMesa'] = $targetPath;
             }
-            
             $data = DataAccess::Insert($table, $columns, $values);
+            if(!$data)
+            {
+                return self::ReturnResponse($request, $response, "Error en la interacción con la base de datos.");        
+            }
+        }        
 
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
-        }
-        else
-        {
-            return self::ReturnResponse($request, $response, "Error interno.");
-        }
+        return self::ReturnResponse($request, $response, "Entidad creada con éxito.");
     }
     #endregion
     /////////////////////////////////////////////////////////////
     #region - - - PRIVATE
+    private static function GetProductArea()
+    {
+        
+    }
+
     private static function ReturnResponse($request, $response, $payload)
     {
         $response->getBody()->write(json_encode($payload));
