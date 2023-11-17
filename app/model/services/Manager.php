@@ -199,6 +199,20 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.");
     }
 
+    public static function GetProducts($request, $response)
+    {        
+        $data = DataAccess::Select('productos');
+
+        foreach($data as $key => &$bit)
+        {
+            if($bit['fechaBaja'] != null)
+            {
+                unset($data[$key]);
+            }
+        }
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.");
+    }
+
     ///////////////////////////////////////////////////////////// PUT -- PUT
     
     public static function UpdateEntity($request, $response)
