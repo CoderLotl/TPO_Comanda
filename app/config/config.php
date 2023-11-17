@@ -38,7 +38,7 @@ define('USER_RIGHTS',
                     ],
 	'mozo' =>       [
                         'alta' => ['pedidos'],
-                        'modificar' => ['pedidos' => [1, 4], 'mesas'],
+                        'modificar' => ['pedidos' => [1, 4], 'mesas' => [1, 2, 3, 4, 5]],
                         'baja' => ['pedidos']
                     ],
 	'socio' => '*',

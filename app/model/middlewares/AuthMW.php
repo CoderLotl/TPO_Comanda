@@ -43,6 +43,10 @@ class AuthMW
         return $userType;
     }
 
+    /**
+     * Este middleware revisa si el usuario, en base a su rol, puede realizar la accion general (alta, baja, modificacion) que intenta hacer.
+     * Se tiene en cuenta, en el caso de los pedidos y las mesas, los estados habilitados para cada rol.
+     */
     public static function ValidateAction($action, $object, $userType, $_req)
     {           
         
@@ -66,6 +70,9 @@ class AuthMW
         return false;
     }
 
+    /**
+     * Este middleware particular revisa que, en el caso de una modificacion sobre un pedido, un sub-rol no pueda afectar un pedido de un area ajena.
+     */
     public static function ValidateOrderModificationAction($request, $handler)
     {
         $params = $request->getParsedBody();        
