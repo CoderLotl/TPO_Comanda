@@ -93,6 +93,11 @@ class Manager
             $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
         }
 
+        if(count($data) == 0)
+        {
+            $data = 'No hay pedidos vigentes para mostrar.';
+        }
+
         return self::ReturnResponse($request, $response, $data);
     }
 
@@ -147,6 +152,11 @@ class Manager
             }
 
             $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+        }
+
+        if(count($data) == 0)
+        {
+            $data = 'No hay pedidos vigentes para mostrar.';
         }
 
         return self::ReturnResponse($request, $response, $data);
