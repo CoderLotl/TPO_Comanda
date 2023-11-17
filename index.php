@@ -69,10 +69,10 @@ $app->post('/login', \Model\Services\LoginManager::class . '::LogIn');
 
 $app->group('/obtener', function (RouteCollectorProxy $group)
 {
-    $group->get('/entidades', \Model\Services\Manager::class . '::GetAllEntities');
-    $group->get('/rol', \Model\Services\Manager::class . '::GetUsersByRole'); // Devuelve todos los usuarios por rol
-    $group->get('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
-    $group->get('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders'); // Devuelve todas las ordenes visibles para el tipo de usuario.
+    $group->post('/entidades', \Model\Services\Manager::class . '::GetAllEntities')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+    $group->post('/rol', \Model\Services\Manager::class . '::GetUsersByRole')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
+    $group->post('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
+    $group->post('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders'); // Devuelve todas las ordenes visibles para el tipo de usuario.
 });
 
 $app->group('/alta', function (RouteCollectorProxy $group)
@@ -85,8 +85,9 @@ $app->group('/alta', function (RouteCollectorProxy $group)
 
 $app->group('/modificar', function (RouteCollectorProxy $group)
 {
-    $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->put('/orden', \Model\Services\Manager::class . '::UpdateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateOrderModificationAction');
+    //$group->put()
 });
 
 $app->run();

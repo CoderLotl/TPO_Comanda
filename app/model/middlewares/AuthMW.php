@@ -4,6 +4,7 @@ namespace Model\Middlewares;
 use Model\Services\DataAccess;
 use Model\Services\AuthJWT;
 use Exception;
+use Model\Utilities\Blasphemy;
 use Model\Utilities\Log;
 
 class AuthMW
@@ -58,11 +59,15 @@ class AuthMW
         {
             if( $action == 'modificar' )
             {
-                $state = $_req['estado']; // Obtengo el valor del estado que el usuario quiere setear
-                if( !in_array($state, USER_RIGHTS[$userType][$action][$object]) )// Chequeo si el usuario puede hacer el cambio de estado con el valor que quiere pasar
+                if(isset($_req['estado']))
                 {
-                    return false;
-                }                
+                    $state = $_req['estado']; // Obtengo el valor del estado que el usuario quiere setear
+                    if( !in_array($state, USER_RIGHTS[$userType][$action][$object]) )// Chequeo si el usuario puede hacer el cambio de estado con el valor que quiere pasar
+                    {
+                        return false;
+                    }
+                    return true;
+                }
             }
             return true;
         }
@@ -100,5 +105,34 @@ class AuthMW
         }
 
         throw new Exception('Este usuario no tiene este derecho.');
+    }
+
+    public static function WardGrupo($request, $handler)
+    {
+        if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
+        {
+            $params = $request->getQueryParams();
+        }
+        else
+        {
+            $params = $request->getParsedBody();
+        }
+
+        if( isset($params['token']) && in_array(self::GetRole($params['token']), ['socio', 'cervecero', 'mozo', 'cocinero', 'bartender']) )
+        {
+            return $handler->handle($request);
+        }
+        throw new Exception('Este usuario no tiene este derecho.'); 
+    }
+
+    public static function WardSocio($request, $handler)
+    {
+        $params = Blasphemy::GetRequest($request);
+
+        if(isset($params['token']) && self::GetRole($params['token']) == 'socio')
+        {
+            return $handler->handle($request);
+        }
+        throw new Exception('Este usuario no tiene este derecho.'); 
     }
 }

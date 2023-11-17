@@ -14,10 +14,11 @@ class Manager
     /////////////////////////////////////////////////////////////
     #region - - - PUBLIC
 
-    ///////////////////////////////////////////////////////////// GET
+    ///////////////////////////////////////////////////////////// PUT -- GET
     public static function GetAllEntities($request, $response)
     {
-        $type = $_GET['entidad'];
+        $_req = Blasphemy::GetRequest($request);
+        $type = $_req['entidad'];
         $data = DataAccess::Select($type);
         
         if($type == 'usuarios')
@@ -40,7 +41,7 @@ class Manager
 
     public static function GetOrdersByCode($request, $response)
     {
-        $_req = $request->getQueryParams();
+        $_req = Blasphemy::GetRequest($request);
         $code = $_req['codigo'];
         $productos = DataAccess::Select('productos');
         $rol = AuthMW::GetRole($_req['token']);
@@ -58,7 +59,7 @@ class Manager
             case 'cocinero':
                 $productType = 'comida';
                 break;
-        }
+        }        
 
         if($productType)
         {
@@ -67,6 +68,14 @@ class Manager
         else
         {
             $data = DataAccess::SelectWhere('pedidos', null, ['codigoPedido'], [$code]);
+        }
+
+        foreach($data as $key => $bit)
+        {
+            if($bit['fechaBaja'] != null)
+            {
+                unset($data[$key]);
+            }
         }
 
         foreach($data as &$bit)
@@ -89,7 +98,7 @@ class Manager
 
     public static function GetAllOrders($request, $response)
     {        
-        $_req = $request->getQueryParams();        
+        $_req = Blasphemy::GetRequest($request);
         $productos = DataAccess::Select('productos');
         $rol = AuthMW::GetRole($_req['token']);
         $data = null;
@@ -117,6 +126,14 @@ class Manager
             $data = DataAccess::Select('pedidos', null);
         }
 
+        foreach($data as $key => $bit)
+        {
+            if($bit['fechaBaja'] != '')
+            {
+                unset($data[$key]);
+            }
+        }
+
         foreach($data as &$bit)
         {
             $nombreProducto = '';
@@ -137,44 +154,54 @@ class Manager
 
     public static function GetUsersByRole($request, $response)
     {
+        $params = Blasphemy::GetRequest($request);
         $data = DataAccess::SelectWithJoin(
             'usuarios', // tabla 1
             'tipo_usuario', // tabla 2
             'tipo', // col de tabla 1
             'codigo', // col de tabla 2
-            'tipo', $_GET['buscar'], // donde col de tabla 2 = 'buscar'
+            'tipo', $params['buscar'], // donde col de tabla 2 = 'buscar'
             ['usuarios.user', 'tipo_usuario.tipo', 'usuarios.alta', 'usuarios.baja'] // datos a traer
         );
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo");
     }
 
-    ///////////////////////////////////////////////////////////// PUT
+    ///////////////////////////////////////////////////////////// PUT -- PUT
+    
     public static function UpdateEntity($request, $response)
     {
-        $_PUT = file_get_contents("php://input");        
-        $_PUT = json_decode($_PUT, true);
-        $table = $_PUT['objeto'];
-        $columns = $_PUT['col'];
-        $values = $_PUT['val'];
+        $_req = Blasphemy::GetRequest($request);
+        $table = $_req['objeto'];
+        $columns = $_req['col'];
+        $values = $_req['val'];
 
-        $data = DataAccess::Update($table, $columns, $values, $_PUT['where'], $_PUT['value']);
+        $data = DataAccess::Update($table, $columns, $values, $_req['where'], $_req['value']);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
 
     public static function UpdateOrder($request, $response)
     {
-        $params = $request->getParsedBody();
-        $state = $params['estado'];
+        $params = Blasphemy::GetRequest($request);
         $id = $params['id'];
+        $columns = [];
+        $values = [];
+        foreach($params as $key => $val)
+        {
+            if(in_array($key, ['estado', 'tiempoEstimado', 'tiempoInicio', 'tiempoEntregado', 'fechaBaja']))
+            {
+                array_push($columns, $key);                
+                array_push($values, $val);                
+            }
+        }       
         
-        $data = DataAccess::Update('pedidos', ['estado'], [$state], 'id', $id);
+        $data = DataAccess::Update('pedidos', $columns, $values, 'id', $id);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     
     ///////////////////////////////////////////////////////////// POST
     public static function CreateEmployee($request, $response)
     {
-        $params = $request->getParsedBody();
+        $params = Blasphemy::GetRequest($request);
         $table = 'usuarios';
         $columns = $params['col'];
         $values = $params['val'];
@@ -244,7 +271,7 @@ class Manager
 
     public static function CreateProduct($request, $response)
     {
-        $params = $request->getParsedBody();
+        $params = Blasphemy::GetRequest($request);
         $table = 'productos';
         $columns = $params['col'];
         $values = $params['val'];
@@ -268,7 +295,7 @@ class Manager
 
     public static function CreateOrder($request, $response)
     {
-        $params = $request->getParsedBody();
+        $params = Blasphemy::GetRequest($request);
         $uploadedFiles = $request->getUploadedFiles();
         $table = 'pedidos';
         $idMesa = $params['idMesa'];
@@ -331,11 +358,6 @@ class Manager
     #endregion
     /////////////////////////////////////////////////////////////
     #region - - - PRIVATE
-    private static function GetProductArea()
-    {
-        
-    }
-
     private static function GetID($table)
     {
         $id = 0;

@@ -5,13 +5,25 @@ namespace Model\Utilities;
 class Blasphemy
 {
     public static function AssocArrayInsertAt(array $assocArray, $newKey, $newValue, int $position)
-    {     
-        $keys = array_keys($assocArray);
-        
+    {           
         $firstPart = array_slice($assocArray, 0, $position, true);
         $secondPart = array_slice($assocArray, $position, null, true);        
         $newArray = $firstPart + [$newKey => $newValue] + $secondPart;
 
         return $newArray;
+    }
+
+    public static function GetRequest($request)
+    {
+        if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
+        {
+            $params = $request->getQueryParams();
+        }
+        else
+        {
+            $params = $request->getParsedBody();
+        }
+
+        return $params;
     }
 }
