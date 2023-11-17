@@ -13,6 +13,8 @@ class Manager
 {
     /////////////////////////////////////////////////////////////
     #region - - - PUBLIC
+
+    ///////////////////////////////////////////////////////////// GET
     public static function GetAllEntities($request, $response)
     {
         $type = $_GET['entidad'];
@@ -146,6 +148,7 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo");
     }
 
+    ///////////////////////////////////////////////////////////// PUT
     public static function UpdateEntity($request, $response)
     {
         $_PUT = file_get_contents("php://input");        
@@ -160,27 +163,15 @@ class Manager
 
     public static function UpdateOrder($request, $response)
     {
-        $_PUT = file_get_contents("php://input");        
-        $_PUT = json_decode($_PUT, true);
-        $table = 'pedidos';
-        $state = $_PUT['estado'];
+        $params = $request->getParsedBody();
+        $state = $params['estado'];
+        $id = $params['id'];
         
-        $data = DataAccess::Update('pedidos', ['estado'], $state, $_PUT['where'], $_PUT['value']);
+        $data = DataAccess::Update('pedidos', ['estado'], [$state], 'id', $id);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     
-    private static function GetID($table)
-    {
-        $id = 0;
-        $lastID = DataAccess::SelectLast($table, 'id');
-        
-        if($lastID)
-        {
-            $id = $lastID;
-        }
-        return $id;
-    }
-
+    ///////////////////////////////////////////////////////////// POST
     public static function CreateEmployee($request, $response)
     {
         $params = $request->getParsedBody();
@@ -343,6 +334,18 @@ class Manager
     private static function GetProductArea()
     {
         
+    }
+
+    private static function GetID($table)
+    {
+        $id = 0;
+        $lastID = DataAccess::SelectLast($table, 'id');
+        
+        if($lastID)
+        {
+            $id = $lastID;
+        }
+        return $id;
     }
 
     private static function ReturnResponse($request, $response, $payload)

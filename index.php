@@ -86,7 +86,7 @@ $app->group('/alta', function (RouteCollectorProxy $group)
 $app->group('/modificar', function (RouteCollectorProxy $group)
 {
     $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->put('/orden', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/orden', \Model\Services\Manager::class . '::UpdateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateOrderModificationAction');
 });
 
 $app->run();

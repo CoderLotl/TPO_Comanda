@@ -44,17 +44,18 @@ class AuthMW
     }
 
     public static function ValidateAction($action, $object, $userType, $_req)
-    {
+    {           
+        
         if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...
         {
             return true;
         }
-        else if( in_array($action, USER_RIGHTS[$userType]) && in_array($object, USER_RIGHTS[$userType][$action]) ) // ... o si tiene el derecho, y tiene el derecho sobre ese tipo de objetos ...
+        elseif( isset(USER_RIGHTS[$userType][$action]) && isset(USER_RIGHTS[$userType][$action][$object]) ) // ... o si tiene el derecho, y tiene el derecho sobre ese tipo de objetos ...
         {
             if( $action == 'modificar' )
             {
-                $state = $_req['val'][array_search('estado', $_req['col'])];
-                if( !in_array($state, USER_RIGHTS[$userType][$action][$object]) )
+                $state = $_req['estado']; // Obtengo el valor del estado que el usuario quiere setear
+                if( !in_array($state, USER_RIGHTS[$userType][$action][$object]) )// Chequeo si el usuario puede hacer el cambio de estado con el valor que quiere pasar
                 {
                     return false;
                 }                
@@ -63,5 +64,34 @@ class AuthMW
         }
         
         return false;
+    }
+
+    public static function ValidateOrderModificationAction($request, $handler)
+    {
+        $params = $request->getParsedBody();        
+        $id = $params['id'];
+        $role = self::GetRole($params['token']);
+        $allowedType = '*';
+        $orderType = DataAccess::SelectWhere('pedidos', ['tipoProducto'], ['id'], [$id])[0]['tipoProducto'];
+        
+        switch($role)
+        {
+            case 'cervecero':
+                $allowedType = 'cerveza';
+                break;
+            case 'bartender':
+                $allowedType = 'bebida';
+                break;
+            case 'cocinero':
+                $allowedType = 'comida';
+                break;
+        }        
+
+        if($allowedType == '*' || ($allowedType == $orderType))
+        {
+            return $handler->handle($request);
+        }
+
+        throw new Exception('Este usuario no tiene este derecho.');
     }
 }
