@@ -297,24 +297,47 @@ class Manager
     {
         $params = Blasphemy::GetRequest($request);
         $table = 'usuarios';
-        $columns = $params['col'];
-        $values = $params['val'];
         $id = self::GetID($table);
-        $id += 1;
-
+        $id += 1;        
         $date = date("Y-m-d");
-
-        array_push($columns, 'id', 'alta');
-        array_push($values, $id, $date);
-
-        if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
+        $uploadedFiles = $request->getUploadedFiles();
+        
+        if(isset($uploadedFiles['csv']))
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            $uploadedFile = $uploadedFiles['csv'];                        
+            $fileContents = $uploadedFile->getStream()->getContents();
+            $lines = explode(PHP_EOL, $fileContents);            
+            $columns = explode(',', $lines[0]);
+            $values = explode(',', $lines[1]);
+            array_push($columns, 'id', 'alta');
+            array_push($values, $id, $date);
+            
+            if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {            
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
         else
-        {            
-            return self::ReturnResponse($request, $response, "Error interno.");
+        {
+            $columns = $params['col'];
+            $values = $params['val'];
+            array_push($columns, 'id', 'alta');
+            array_push($values, $id, $date);
+    
+            if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {            
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
     }
 
@@ -325,6 +348,7 @@ class Manager
         $id += 1;
         $columns = [];
         $values = [];
+        $uploadedFiles = $request->getUploadedFiles();
 
         $tableCodes = DataAccess::Select('mesas', 'codigo_mesa');
         $code = '';
@@ -348,18 +372,42 @@ class Manager
         {
             $code = CodeGenerator::RandomAlphaNumCode();
         }
-
-        array_push($columns, 'id', 'codigo_mesa');
-        array_push($values, $id, $code);        
-
-        if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
+        
+        if(isset($uploadedFiles['csv']))
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            $uploadedFile = $uploadedFiles['csv'];                        
+            $fileContents = $uploadedFile->getStream()->getContents();
+            $lines = explode(PHP_EOL, $fileContents);            
+            $columns = explode(',', $lines[0]);
+            $values = explode(',', $lines[1]);           
+
+            array_push($columns, 'id', 'codigo_mesa');
+            array_push($values, $id, $code);        
+            
+            if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {            
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
         else
         {
-            return self::ReturnResponse($request, $response, "Error interno.");
+            array_push($columns, 'id', 'codigo_mesa');
+            array_push($values, $id, $code);        
+    
+            if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
     }
 
@@ -371,19 +419,44 @@ class Manager
         $values = $params['val'];
         $id = self::GetID($table);
         $id += 1;
-
         $date = date("Y-m-d");
-        array_push($columns, 'id', 'fechaAlta');
-        array_push($values, $id, $date);
 
-        if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
+        $uploadedFiles = $request->getUploadedFiles();
+        
+        if(isset($uploadedFiles['csv']))
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            $uploadedFile = $uploadedFiles['csv'];                        
+            $fileContents = $uploadedFile->getStream()->getContents();
+            $lines = explode(PHP_EOL, $fileContents);            
+            $columns = explode(',', $lines[0]);
+            $values = explode(',', $lines[1]);
+            array_push($columns, 'id', 'fechaAlta');
+            array_push($values, $id, $date);
+            
+            if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {            
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
         else
         {
-            return self::ReturnResponse($request, $response, "Error interno.");
+            array_push($columns, 'id', 'fechaAlta');
+            array_push($values, $id, $date);
+    
+            if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
+            {
+                $data = DataAccess::Insert($table, $columns, $values);
+                return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            }
+            else
+            {
+                return self::ReturnResponse($request, $response, "Error interno.");
+            }
         }
     }
 
@@ -430,12 +503,12 @@ class Manager
             $id++;
             $columns = ['id', 'codigoPedido', 'idMesa',	'idProducto', 'cantidadProducto', 'tipoProducto', 'nombreCliente', 'estado', 'fecha'];
             $values = [$id, $code, $idMesa, $idProductos[$i], $cantidadProductos[$i], $tipoProductos[$i], $nombreCliente, 1, $date];
-            if(!is_dir('./img'))
-            {
-                mkdir('./img', 0777, true);
-            }
             if (isset($uploadedFiles['fotoMesa']))
             {            
+                if(!is_dir('./img'))
+                {
+                    mkdir('./img', 0777, true);
+                }
                 $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $id . '.jpg';
                 $uploadedFiles['fotoMesa']->moveTo($targetPath);                
                 $columns['fotoMesa'] = $targetPath;
