@@ -173,7 +173,30 @@ class Manager
             'tipo', $params['buscar'], // donde col de tabla 2 = 'buscar'
             ['usuarios.user', 'tipo_usuario.tipo', 'usuarios.alta', 'usuarios.baja'] // datos a traer
         );
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo");
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo.");
+    }
+
+    public static function GetTables($request, $response)
+    {
+        $states = DataAccess::Select('estado_mesas');
+        $data = DataAccess::Select('mesas');
+
+        foreach($data as &$bit)
+        {
+            foreach($states as $st)
+            {
+                if($bit['estado'] == $st['id'])
+                {
+                    $bit['estado'] = $st['estado'];
+                    break;
+                }
+                if($bit['estado'] == null)
+                {
+                    $bit['estado'] = 'sin estado';
+                }
+            }
+        }
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.");
     }
 
     ///////////////////////////////////////////////////////////// PUT -- PUT
@@ -230,6 +253,28 @@ class Manager
         }       
         
         $data = DataAccess::Update('mesas', $columns, $values, 'id', $id);
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+    }
+
+    public static function UpdateProduct($request, $response)
+    {
+        $params = Blasphemy::GetRequest($request);
+        $id = $params['id'];
+        $columns = [];
+        $values = [];
+        foreach($params as $key => $val)
+        {
+            if(in_array($key, ['descripcion', 'tipo', 'precio', 'fechaAlta', 'fechaBaja']))
+            {
+                if($val != '' && !($key == 'tipo' && !in_array($val, [1, 2, 3])))
+                {
+                    array_push($columns, $key);                
+                    array_push($values, $val);
+                }
+            }
+        }       
+        
+        $data = DataAccess::Update('productos', $columns, $values, 'id', $id);
         return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
     }
     
