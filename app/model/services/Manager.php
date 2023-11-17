@@ -20,6 +20,7 @@ class Manager
         $_req = Blasphemy::GetRequest($request);
         $type = $_req['entidad'];
         $data = DataAccess::Select($type);
+        $csv = isset($_req['csv']) ? $_req['csv'] : null;
         
         if($type == 'usuarios')
         {
@@ -36,13 +37,14 @@ class Manager
             }
         }
 
-        return self::ReturnResponse($request, $response, $data);
+        return self::ReturnResponse($request, $response, $data, $csv);
     }
 
     public static function GetOrdersByCode($request, $response)
     {
-        $_req = Blasphemy::GetRequest($request);
+        $_req = Blasphemy::GetRequest($request);        
         $code = $_req['codigo'];
+        $csv = isset($_req['csv']) ? $_req['csv'] : null;
         $productos = DataAccess::Select('productos');
         $rol = AuthMW::GetRole($_req['token']);
         $data = null;
@@ -98,7 +100,7 @@ class Manager
             $data = 'No hay pedidos vigentes para mostrar.';
         }
 
-        return self::ReturnResponse($request, $response, $data);
+        return self::ReturnResponse($request, $response, $data, $csv);
     }
 
     public static function GetAllOrders($request, $response)
@@ -108,6 +110,7 @@ class Manager
         $rol = AuthMW::GetRole($_req['token']);
         $data = null;
         $productType = null;
+        $csv = isset($_req['csv']) ? $_req['csv'] : null;
         
         switch($rol)
         {
@@ -159,12 +162,13 @@ class Manager
             $data = 'No hay pedidos vigentes para mostrar.';
         }
 
-        return self::ReturnResponse($request, $response, $data);
+        return self::ReturnResponse($request, $response, $data, $csv);
     }
 
     public static function GetUsersByRole($request, $response)
     {
         $params = Blasphemy::GetRequest($request);
+        $csv = isset($params['csv']) ? $params['csv'] : null;
         $data = DataAccess::SelectWithJoin(
             'usuarios', // tabla 1
             'tipo_usuario', // tabla 2
@@ -173,13 +177,15 @@ class Manager
             'tipo', $params['buscar'], // donde col de tabla 2 = 'buscar'
             ['usuarios.user', 'tipo_usuario.tipo', 'usuarios.alta', 'usuarios.baja'] // datos a traer
         );
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo.");
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo.", $csv);
     }
 
     public static function GetTables($request, $response)
     {
         $states = DataAccess::Select('estado_mesas');
         $data = DataAccess::Select('mesas');
+        $_req = Blasphemy::GetRequest($request);
+        $csv = isset($_req['csv']) ? $_req['csv'] : null;
 
         foreach($data as &$bit)
         {
@@ -196,12 +202,14 @@ class Manager
                 }
             }
         }
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.");
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", $csv);
     }
 
     public static function GetProducts($request, $response)
     {        
         $data = DataAccess::Select('productos');
+        $_req = Blasphemy::GetRequest($request);
+        $csv = isset($_req['csv']) ? $_req['csv'] : null;
 
         foreach($data as $key => &$bit)
         {
@@ -210,7 +218,7 @@ class Manager
                 unset($data[$key]);
             }
         }
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.");
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", $csv);
     }
 
     ///////////////////////////////////////////////////////////// PUT -- PUT
@@ -454,8 +462,10 @@ class Manager
         }
 
         $mesa = DataAccess::SelectWhere('mesas', ['estado'], ['id'], [$idMesa])[0];
-        if($mesa['estado'] == 5)
-        {                
+        if($mesa['estado'] != 4)
+        {
+            DataAccess::Update('mesas', ['estado'], [1], 'id', $idMesa); // La mesa espera pedido.
+
             foreach($idProductos as $product)
             {
                 $pdo = DataAccess::$pdo;
@@ -512,10 +522,37 @@ class Manager
         return $id;
     }
 
-    private static function ReturnResponse($request, $response, $payload)
-    {
-        $response->getBody()->write(json_encode($payload));
-        return $response->withHeader('Content-Type', 'application/json');
+    private static function ReturnResponse($request, $response, $payload, $csv = null)
+    {        
+        if($csv)
+        {
+            $csvContent = '';
+            if(!empty($payload))
+            {                
+                $fields = array_keys($payload[0]);
+                $csvContent .= implode(',', $fields) . "\n";   
+                
+                foreach ($payload as $row)
+                {
+                    $csvContent .= implode(',', array_values($row)) . "\n";
+                }
+            }
+            else
+            {
+                $csvContent = 'No data available for CSV download.';
+            }    
+            
+            $response = $response->withHeader('Content-Type', 'text/csv');
+            $response = $response->withHeader('Content-Disposition', 'attachment; filename="'. "{$csv}" . '.csv"');
+            $response->getBody()->write($csvContent);
+    
+            return $response;
+        }
+        else
+        {
+            $response->getBody()->write(json_encode($payload));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
     }
     #endregion
 }

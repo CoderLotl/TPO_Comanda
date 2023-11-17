@@ -73,7 +73,7 @@ $app->group('/obtener', function (RouteCollectorProxy $group)
     $group->post('/rol', \Model\Services\Manager::class . '::GetUsersByRole')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->post('/mesas', \Model\Services\Manager::class . '::GetTables')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->post('/productos', \Model\Services\Manager::class . '::GetProducts')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
-    $group->post('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
+    $group->get('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
     $group->post('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');; // Devuelve todas las ordenes visibles para el tipo de usuario.
 });
 
