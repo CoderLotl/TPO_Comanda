@@ -14,7 +14,7 @@ class AuthJWT
         $now = time();
         $payload = array(
             'iat' => $now,
-            'exp' => $now + (60000),
+            'exp' => $now + (60000000),
             'aud' => self::Aud(),
             'data' => $datos,
             'app' => "TP Comanda"

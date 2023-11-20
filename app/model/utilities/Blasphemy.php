@@ -22,8 +22,8 @@ class Blasphemy
         else
         {
             $params = $request->getParsedBody();
-        }
-
+        }        
+        
         return $params;
     }
 }

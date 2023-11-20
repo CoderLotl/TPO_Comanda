@@ -42,11 +42,12 @@ class Manager
 
     public static function GetOrdersByCode($request, $response)
     {
-        $_req = Blasphemy::GetRequest($request);        
+        $_req = Blasphemy::GetRequest($request);
+        $token = $request->getHeaderLine('Authorization');        
         $code = $_req['codigo'];
         $csv = isset($_req['csv']) ? $_req['csv'] : null;
         $productos = DataAccess::Select('productos');
-        $rol = AuthMW::GetRole($_req['token']);
+        $rol = AuthMW::GetRole($token);
         $data = null;
         $productType = null;
         
@@ -107,7 +108,8 @@ class Manager
     {        
         $_req = Blasphemy::GetRequest($request);
         $productos = DataAccess::Select('productos');
-        $rol = AuthMW::GetRole($_req['token']);
+        $token = $request->getHeaderLine('Authorization');        
+        $rol = AuthMW::GetRole($token);
         $data = null;
         $productType = null;
         $csv = isset($_req['csv']) ? $_req['csv'] : null;

@@ -11,11 +11,11 @@ class AuthMW
 {
     public static function ValidateUser($request, $handler)    
     {
+        $token = $request->getHeaderLine('Authorization');
         if($_SERVER['REQUEST_METHOD'] != 'PUT')
         {
             $action = $_REQUEST['accion'];
-            $object = $_REQUEST['objeto'];            
-            $token = $_REQUEST['token'];
+            $object = $_REQUEST['objeto'];                        
             $_req = $_REQUEST;
         }
         else
@@ -24,8 +24,7 @@ class AuthMW
             $_PUT = json_decode($_PUT, true);
             $_req = $_PUT;
             $action = $_PUT['accion'];
-            $object = $_PUT['objeto'];            
-            $token = $_PUT['token'];
+            $object = $_PUT['objeto'];                        
         }
         
         $userType = AuthJWT::GetData($token)->rol;            
@@ -49,8 +48,7 @@ class AuthMW
      * Se tiene en cuenta, en el caso de los pedidos y las mesas, los estados habilitados para cada rol.
      */
     public static function ValidateAction($action, $object, $userType, $_req)
-    {           
-        
+    {        
         if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...
         {
             return true;
@@ -82,7 +80,8 @@ class AuthMW
     {
         $params = $request->getParsedBody();        
         $id = $params['id'];
-        $role = self::GetRole($params['token']);
+        $token = $request->getHeaderLine('Authorization');
+        $role = self::GetRole($token);
         $allowedType = '*';
         $orderType = DataAccess::SelectWhere('pedidos', ['tipoProducto'], ['id'], [$id])[0]['tipoProducto'];
         
@@ -109,6 +108,7 @@ class AuthMW
 
     public static function WardGrupo($request, $handler)
     {
+        $token = $request->getHeaderLine('Authorization');
         if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
         {
             $params = $request->getQueryParams();
@@ -118,7 +118,7 @@ class AuthMW
             $params = $request->getParsedBody();
         }
 
-        if( isset($params['token']) && in_array(self::GetRole($params['token']), ['socio', 'cervecero', 'mozo', 'cocinero', 'bartender']) )
+        if( in_array(self::GetRole($token), ['socio', 'cervecero', 'mozo', 'cocinero', 'bartender']) )
         {
             return $handler->handle($request);
         }
@@ -126,11 +126,11 @@ class AuthMW
     }
 
     public static function WardSocio($request, $handler)
-    {
-        $params = Blasphemy::GetRequest($request);
+    {        
+        $token = $request->getHeaderLine('Authorization');
 
-        if(isset($params['token']) && self::GetRole($params['token']) == 'socio')
-        {
+        if(isset($token) && self::GetRole($token) == 'socio')
+        {            
             return $handler->handle($request);
         }
         throw new Exception('Este usuario no tiene este derecho.'); 
@@ -138,9 +138,9 @@ class AuthMW
 
     public static function WardMozo($request, $handler)
     {
-        $params = Blasphemy::GetRequest($request);
+        $token = $request->getHeaderLine('Authorization');
 
-        if(isset($params['token']) && (self::GetRole($params['token']) == 'socio' || self::GetRole($params['token']) == 'mozo'))
+        if(isset($token) && (self::GetRole($token) == 'socio' || self::GetRole($token) == 'mozo'))
         {
             return $handler->handle($request);
         }
