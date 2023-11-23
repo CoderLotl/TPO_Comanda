@@ -34,18 +34,6 @@ $app->addErrorMiddleware(true, true, true)->setDefaultErrorHandler($errorMiddlew
 $app->addBodyParsingMiddleware();
 
 /////////////////////////////////////////////////////////////
-#region - - - SERVER - - -
-// Instantiate App
-$app = AppFactory::create();
-
-// Add error middleware
-$app->addErrorMiddleware(true, true, true);
-
-// Add parse body
-$app->addBodyParsingMiddleware();
-#endregion
-
-/////////////////////////////////////////////////////////////
 #region - - - TEST ROUTES - - -
 $app->get('[/]', function (Request $request, Response $response)
 {
