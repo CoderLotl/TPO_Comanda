@@ -197,6 +197,18 @@ class DataAccess
         }
     }
 
+    public static function GetID($table)
+    {
+        $id = 0;
+        $lastID = DataAccess::SelectLast($table, 'id');
+        
+        if($lastID)
+        {
+            $id = $lastID;
+        }
+        return $id;
+    }
+
     public static function Update(string $table, array $columns, array $values, string $whereColumn, $whereValue)
     {
         try
@@ -212,6 +224,45 @@ class DataAccess
                 }
             }
             $query = "UPDATE `{$table}` SET {$setClause} WHERE `{$whereColumn}` = '{$whereValue}'";
+            $statement = self::$pdo->prepare($query);
+
+            return $statement->execute();
+        }
+        catch(Exception $e)
+        {
+            self::Catch($e);
+        }
+    }
+
+    public static function UpdateMultipleWhere(string $table, array $columns, array $values, array $whereColumn, array $whereValue)
+    {
+        try
+        {
+            $setClause = '';
+            $lastColumn = end($columns);
+            foreach($columns as $key => $col)
+            {
+                $setClause .= "`{$col}` = '{$values[$key]}'";
+                if($col != $lastColumn)
+                {
+                    $setClause .= ', ';
+                }
+            }
+
+            $whereClause = '';
+            $lastColumn = end($whereColumn);
+            for($i = 0; $i < count($whereColumn); $i++)
+            {
+                $whereClause .= "{$whereColumn[$i]} = '{$whereValue[$i]}'";
+                
+                if($whereColumn[$i] != $lastColumn)
+                {
+                    $whereClause .= ' AND ';
+                }
+            }
+
+            $query = "UPDATE `{$table}` SET {$setClause} WHERE $whereClause";
+            
             $statement = self::$pdo->prepare($query);
 
             return $statement->execute();

@@ -5,7 +5,6 @@ namespace Model\Services;
 use DateTime;
 use Model\Middlewares\AuthMW;
 use Model\Services\DataAccess;
-use Model\Utilities\Blasphemy;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
 
@@ -14,10 +13,10 @@ class Manager
     /////////////////////////////////////////////////////////////
     #region - - - PUBLIC
 
-    ///////////////////////////////////////////////////////////// PUT -- GET
+    ///////////////////////////////////////////////////////////// GET
     public static function GetAllEntities($request, $response)
     {
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $type = $_req['entidad'];
         $data = DataAccess::Select($type);
         $csv = isset($_req['csv']) ? $_req['csv'] : null;
@@ -42,7 +41,7 @@ class Manager
 
     public static function GetOrdersByCode($request, $response)
     {
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $token = $request->getHeaderLine('Authorization');        
         $code = $_req['codigo'];
         $csv = isset($_req['csv']) ? $_req['csv'] : null;
@@ -93,7 +92,7 @@ class Manager
                 }
             }
 
-            $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+            $bit = self::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
         }
 
         if(count($data) == 0)
@@ -106,7 +105,7 @@ class Manager
 
     public static function GetAllOrders($request, $response)
     {        
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $productos = DataAccess::Select('productos');
         $token = $request->getHeaderLine('Authorization');        
         $rol = AuthMW::GetRole($token);
@@ -156,7 +155,7 @@ class Manager
                 }
             }
 
-            $bit = Blasphemy::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+            $bit = self::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
         }
 
         if(count($data) == 0)
@@ -169,7 +168,7 @@ class Manager
 
     public static function GetUsersByRole($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $csv = isset($params['csv']) ? $params['csv'] : null;
         $data = DataAccess::SelectWithJoin(
             'usuarios', // tabla 1
@@ -186,7 +185,7 @@ class Manager
     {
         $states = DataAccess::Select('estado_mesas');
         $data = DataAccess::Select('mesas');
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $csv = isset($_req['csv']) ? $_req['csv'] : null;
 
         foreach($data as &$bit)
@@ -210,7 +209,7 @@ class Manager
     public static function GetProducts($request, $response)
     {        
         $data = DataAccess::Select('productos');
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $csv = isset($_req['csv']) ? $_req['csv'] : null;
 
         foreach($data as $key => &$bit)
@@ -223,11 +222,11 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", $csv);
     }
 
-    ///////////////////////////////////////////////////////////// PUT -- PUT
+    ///////////////////////////////////////////////////////////// PUT
     
     public static function UpdateEntity($request, $response)
     {
-        $_req = Blasphemy::GetRequest($request);
+        $_req = self::GetRequest($request);
         $table = $_req['objeto'];
         $columns = $_req['col'];
         $values = $_req['val'];
@@ -238,7 +237,7 @@ class Manager
 
     public static function UpdateOrder($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $id = $params['id'];
         $columns = [];
         $values = [];
@@ -260,7 +259,7 @@ class Manager
 
     public static function UpdateTable($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $id = $params['id'];
         $columns = [];
         $values = [];
@@ -282,7 +281,7 @@ class Manager
 
     public static function UpdateProduct($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $id = $params['id'];
         $columns = [];
         $values = [];
@@ -305,9 +304,9 @@ class Manager
     ///////////////////////////////////////////////////////////// POST
     public static function CreateEmployee($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $table = 'usuarios';
-        $id = self::GetID($table);
+        $id = DataAccess::GetID($table);
         $id += 1;        
         $date = date("Y-m-d");
         $uploadedFiles = $request->getUploadedFiles();
@@ -331,7 +330,7 @@ class Manager
         if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
         {
             $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response, $data ? "Empleado creado con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {            
@@ -342,7 +341,7 @@ class Manager
     public static function CreateTable($request, $response)
     {
         $table = 'mesas';
-        $id = self::GetID($table);
+        $id = DataAccess::GetID($table);
         $id += 1;
         $columns = [];
         $values = [];        
@@ -370,13 +369,13 @@ class Manager
             $code = CodeGenerator::RandomAlphaNumCode();
         }        
 
-        array_push($columns, 'id', 'codigo_mesa');
-        array_push($values, $id, $code);        
+        array_push($columns, 'id', 'codigo_mesa', 'estado');
+        array_push($values, $id, $code, 5);        
 
         if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
         {
             $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response, $data ? "Mesa creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {
@@ -386,9 +385,9 @@ class Manager
 
     public static function CreateProduct($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $table = 'productos';
-        $id = self::GetID($table);
+        $id = DataAccess::GetID($table);
         $id += 1;
         $date = date("Y-m-d");
         $uploadedFiles = $request->getUploadedFiles();
@@ -412,7 +411,7 @@ class Manager
         if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
         {
             $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Entidad creada con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response, $data ? "Producto creada con éxito." : "Error en la interacción con la base de datos");
         }
         else
         {
@@ -422,10 +421,11 @@ class Manager
 
     public static function CreateOrder($request, $response)
     {
-        $params = Blasphemy::GetRequest($request);
+        $params = self::GetRequest($request);
         $uploadedFiles = $request->getUploadedFiles();
-        $id = self::GetID('pedidos');
-        $date = date("Y-m-d H:i:s");        
+        $id = DataAccess::GetID('pedidos');
+        $date = date("Y-m-d H:i:s");
+        $fotoMesa = false;
 
         // ----------------------- ASSIGN ORDER CODE
         $currentCode = DataAccess::SelectLast('pedidos', 'codigoPedido');
@@ -478,6 +478,19 @@ class Manager
                 array_push($tipoProductos, $productType);
             }
 
+            // ----------------------- PIC UPLOAD
+
+            if (isset($uploadedFiles['fotoMesa']))
+            {            
+                if(!is_dir('./img'))
+                {
+                    mkdir('./img', 0777, true);
+                }
+                $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
+                $uploadedFiles['fotoMesa']->moveTo($targetPath);                
+                $fotoMesa = $targetPath;
+            }
+
             // ----------------------- ORDER CREATION
 
             for( $i = 0; $i < count($idProductos); $i ++)
@@ -485,16 +498,13 @@ class Manager
                 $id++;
                 $columns = ['id', 'codigoPedido', 'idMesa',	'idProducto', 'cantidadProducto', 'tipoProducto', 'nombreCliente', 'estado', 'fecha'];
                 $values = [$id, $code, $idMesa, $idProductos[$i], $cantidadProductos[$i], $tipoProductos[$i], $nombreCliente, 1, $date];
-                if (isset($uploadedFiles['fotoMesa']))
-                {            
-                    if(!is_dir('./img'))
-                    {
-                        mkdir('./img', 0777, true);
-                    }
-                    $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $id . '.jpg';
-                    $uploadedFiles['fotoMesa']->moveTo($targetPath);                
-                    $columns['fotoMesa'] = $targetPath;
+                
+                if($fotoMesa)
+                {
+                    array_push($columns, 'fotoMesa');
+                    array_push($values, $fotoMesa);
                 }
+                
                 $data = DataAccess::Insert('pedidos', $columns, $values);
                 if(!$data)
                 {
@@ -502,27 +512,124 @@ class Manager
                 }
             }        
 
-            return self::ReturnResponse($request, $response, "Entidad creada con éxito.");
+            return self::ReturnResponse($request, $response, "Orden creada con éxito.");
         }
         else
         {
             return self::ReturnResponse($request, $response, "La mesa se encuentra cerrada. Pedido no realizado.");
         }        
     }
+
+    public static function UploadOrderImage($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $nombreCliente = $params['cliente'];
+        $idMesa = $params['idMesa'];
+        $uploadedFiles = $request->getUploadedFiles();
+
+        if (isset($uploadedFiles['fotoMesa']))
+        {
+            $pedidos = DataAccess::SelectWhere('pedidos', null, ['idMesa', 'nombreCliente'], [$idMesa, $nombreCliente]);
+
+            if($pedidos)
+            {
+                $pedido = null;
+                $fotoMesa = null;
+                foreach($pedidos as $ped)
+                {
+                    if($ped['estado'] !=4)
+                    {
+                        $pedido = $ped;
+                        break;
+                    }
+                }
+
+                if($pedido)
+                {
+                    if(!is_dir('./img'))
+                    {
+                        mkdir('./img', 0777, true);
+                    }
+                    $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
+                    $uploadedFiles['fotoMesa']->moveTo($targetPath);
+                    $fotoMesa = $targetPath;
+
+                    DataAccess::UpdateMultipleWhere('pedidos', ['fotoMesa'], [$fotoMesa], ['idMesa', 'nombreCliente', 'estado'], [$idMesa, $nombreCliente, $pedido['estado']]);
+                    
+                    return self::ReturnResponse($request, $response, 'Imagen subida con exito.');
+                }
+            }
+
+            return self::ReturnResponse($request, $response, 'Error: No hay pedidos para esa mesa o cliente.');
+        }
+        else
+        {
+            return self::ReturnResponse($request, $response, 'Error: No hay imagen.');
+        }
+    }
+
+    ///////////////////////////////////////////////////////////// DELETE
+    public static function CloseAllOrders($request, $response)
+    {
+        $params = self::GetRequest($request);
+
+        $orders = DataAccess::SelectWhere('pedidos', null, ['codigoPedido'], [$params['codigoPedido']]);
+        if($orders)
+        {
+            $order = $orders[0];
+            DataAccess::Update('pedidos', ['estado'], [4], 'codigoPedido', $params['codigoPedido']);
+            DataAccess::Update('mesas', ['estado'], [4], 'estado', $order['idMesa']);
+            return self::ReturnResponse($request, $response, "Todos los pedidos de codigo {$params['codigoPedido']} han sido cerrados.");
+        }
+        else
+        {
+            return self::ReturnResponse($request, $response, 'No hay pedidos abiertos con ese codigo.');
+        }
+    }
+
+    public static function DeleteEmployee($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $empleado = null;
+        $empleados = DataAccess::SelectWhere('usuarios', null, ['id'], [$params['id']]);
+        if($empleados)
+        {
+            $empleado = $empleados[0];
+            if($empleado['baja'] == null)
+            {
+                DataAccess::Update('usuarios', ['baja'], [date_format(new DateTime(), 'Y-m-d_H-i-s')], 'id', $params['id']);
+                return self::ReturnResponse($request, $response, 'Empleado dado de baja con exito.');
+            }
+            else
+            {
+                return self::ReturnResponse($request, $response, 'Error: Ese empleado ya se encuentra dado de baja.');
+            }
+        }
+        else
+        {
+            return self::ReturnResponse($request, $response, 'El usuario buscado no existe.');
+        }
+    }
+
+    public static function OpenTable($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $mesa = DataAccess::SelectWhere('mesas', null, ['id'], [$params['id']]);
+        if($mesa)
+        {
+            $mesa = $mesa[0];
+            DataAccess::Update('mesas', ['estado'], [5], 'id', $params['id']);
+            return self::ReturnResponse($request, $response, "La mesa {$params['id']} ha sido abierta.");
+        }
+        else
+        {
+            return self::ReturnResponse($request, $response, 'La mesa buscada no existe.');
+        }
+    }
     #endregion
     /////////////////////////////////////////////////////////////
     #region - - - PRIVATE
-    private static function GetID($table)
-    {
-        $id = 0;
-        $lastID = DataAccess::SelectLast($table, 'id');
-        
-        if($lastID)
-        {
-            $id = $lastID;
-        }
-        return $id;
-    }
+
 
     private static function ReturnResponse($request, $response, $payload, $csv = null)
     {        
@@ -530,13 +637,20 @@ class Manager
         {
             $csvContent = '';
             if(!empty($payload))
-            {                
-                $fields = array_keys($payload[0]);
-                $csvContent .= implode(',', $fields) . "\n";   
-                
-                foreach ($payload as $row)
+            {
+                if(is_array($payload))
                 {
-                    $csvContent .= implode(',', array_values($row)) . "\n";
+                    $fields = array_keys($payload[0]);
+                    $csvContent .= implode(',', $fields) . "\n";   
+                    
+                    foreach ($payload as $row)
+                    {
+                        $csvContent .= implode(',', array_values($row)) . "\n";
+                    }
+                }
+                else
+                {
+                    $csvContent = $payload;
                 }
             }
             else
@@ -552,9 +666,32 @@ class Manager
         }
         else
         {
-            $response->getBody()->write(json_encode($payload));
+            $response->getBody()->write(json_encode(['response' => $payload]));
             return $response->withHeader('Content-Type', 'application/json');
         }
+    }
+
+    public static function GetRequest($request)
+    {
+        if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
+        {
+            $params = $request->getQueryParams();
+        }
+        else
+        {
+            $params = $request->getParsedBody();
+        }        
+        
+        return $params;
+    }
+
+    public static function AssocArrayInsertAt(array $assocArray, $newKey, $newValue, int $position)
+    {           
+        $firstPart = array_slice($assocArray, 0, $position, true);
+        $secondPart = array_slice($assocArray, $position, null, true);        
+        $newArray = $firstPart + [$newKey => $newValue] + $secondPart;
+
+        return $newArray;
     }
     #endregion
 }

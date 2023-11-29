@@ -12,24 +12,41 @@ class AuthMW
     public static function ValidateUser($request, $handler)    
     {
         $token = $request->getHeaderLine('Authorization');
-        if($_SERVER['REQUEST_METHOD'] != 'PUT')
+        $params = null;
+
+        if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
         {
-            $action = $_REQUEST['accion'];
-            $object = $_REQUEST['objeto'];                        
-            $_req = $_REQUEST;
+            $params = $request->getQueryParams();
         }
         else
         {
-            $_PUT = file_get_contents("php://input");        
-            $_PUT = json_decode($_PUT, true);
-            $_req = $_PUT;
-            $action = $_PUT['accion'];
-            $object = $_PUT['objeto'];                        
+            $params = $request->getParsedBody();
+        }      
+
+        // --------------------------------
+
+        if(isset($params['accion']) && isset($params['objeto']))
+        {            
+            $action = $params['accion'];
+            $object = $params['objeto'];                        
         }
+        else
+        {
+            $e = 'Request incompleta: ';
+            if (!isset($_REQUEST['accion'])) {
+                $e .= 'accion no definida; ';
+            }
+            if (!isset($_REQUEST['objeto'])) {
+                $e .= 'objeto no definido; ';
+            }
+            throw new Exception($e);
+        }
+
+        // --------------------------------
         
         $userType = AuthJWT::GetData($token)->rol;            
         
-        if( self::ValidateAction($action, $object, $userType, $_req) )
+        if( self::ValidateAction($action, $object, $userType, $params) )
         {
             return $handler->handle($request);
         }
@@ -47,7 +64,7 @@ class AuthMW
      * Este middleware revisa si el usuario, en base a su rol, puede realizar la accion general (alta, baja, modificacion) que intenta hacer.
      * Se tiene en cuenta, en el caso de los pedidos y las mesas, los estados habilitados para cada rol.
      */
-    public static function ValidateAction($action, $object, $userType, $_req)
+    private static function ValidateAction($action, $object, $userType, $_req)
     {        
         if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...
         {
@@ -68,8 +85,7 @@ class AuthMW
                 }
             }
             return true;
-        }
-        
+        }        
         return false;
     }
 

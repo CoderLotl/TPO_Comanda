@@ -71,6 +71,7 @@ $app->group('/alta', function (RouteCollectorProxy $group)
     $group->post('/usuarios', \Model\Services\Manager::class . '::CreateEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->post('/productos', \Model\Services\Manager::class . '::CreateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->post('/pedidos', \Model\Services\Manager::class . '::CreateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->post('/agregar_foto_pedido', \Model\Services\Manager::class . '::UploadOrderImage')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
 });
 
 $app->group('/modificar', function (RouteCollectorProxy $group)
@@ -78,7 +79,14 @@ $app->group('/modificar', function (RouteCollectorProxy $group)
     $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->put('/orden', \Model\Services\Manager::class . '::UpdateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateOrderModificationAction');
     $group->put('/mesa', \Model\Services\Manager::class . '::UpdateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/abrir_mesa', \Model\Services\Manager::class . '::OpenTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->put('/producto', \Model\Services\Manager::class . '::UpdateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+});
+
+$app->group('/baja', function (RouteCollectorProxy $group)
+{
+    $group->delete('/empleado', \Model\Services\Manager::class . '::DeleteEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+    $group->delete('/pedidos_todos', \Model\Services\Manager::class . '::CloseAllOrders')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
 });
 
 $app->run();
