@@ -92,4 +92,11 @@ $app->group('/baja', function (RouteCollectorProxy $group)
     $group->delete('/pedidos', \Model\Services\Manager::class . '::CloseOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
 });
 
+$app->group('/encuesta', function (RouteCollectorProxy $group)
+{
+    $group->post('/responder', \Model\Services\Manager::class . '::Encuesta');
+});
+
+$app->get('/logo', \Model\Services\Manager::class . '::GetLogo')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+
 $app->run();

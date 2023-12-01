@@ -271,6 +271,15 @@ class Manager
         return self::ReturnResponse($request, $response, $payload);
     }
 
+    public static function GetLogo($request, $response)
+    {
+        $pdfFile = new TCPDF();
+        $pdfFile->AddPage();
+        $imagePath = APP_ROOT . '/img' . '/logo.jpg';
+        $pdfFile->Image($imagePath, 0, 0, 200, 200);
+        $pdfFile->Output('logo.pdf', 'D');
+    }
+
     ///////////////////////////////////////////////////////////// PUT
     
     public static function UpdateEntity($request, $response)
@@ -573,11 +582,11 @@ class Manager
 
             if (isset($uploadedFiles['fotoMesa']))
             {            
-                if(!is_dir('./img'))
+                if(!is_dir(APP_ROOT . '/img'))
                 {
-                    mkdir('./img', 0777, true);
+                    mkdir(APP_ROOT . '/img', 0777, true);
                 }
-                $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
+                $targetPath = APP_ROOT . '/img' . '/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
                 $uploadedFiles['fotoMesa']->moveTo($targetPath);                
                 $fotoMesa = $targetPath;
             }
@@ -657,6 +666,37 @@ class Manager
         {
             return self::ReturnResponse($request, $response, 'Error: No hay imagen.', 'Carga imagen');
         }
+    }
+
+    public static function Encuesta($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $payload = '';
+        $pedido = DataAccess::SelectWhere('pedidos', null, ['idMesa', 'codigoPedido'], [$params['idMesa'], $params['codigoPedido']]);
+
+        if($pedido)
+        {
+            if(!DataAccess::SelectWhere('encuesta', null, ['idMesa', 'codigoPedido'], [$params['idMesa'], $params['codigoPedido']]))
+            {
+                DataAccess::Insert(
+                    'encuesta',
+                    ['idMesa', 'codigoPedido', 'puntuacionMesa', 'puntuacionRestaurante', 'puntuacionMozo', 'puntuacionCocinero', 'experiencia'],
+                    [$params['idMesa'], $params['codigoPedido'], $params['puntuacionMesa'], $params['puntuacionRestaurante'], $params['puntuacionMozo'], $params['puntuacionCocinero'], $params['experiencia']]
+                );
+    
+                $payload = 'Encuesta finalizada. Muchas gracias!';
+            }
+            else
+            {
+                $payload = 'Error: esta encuesta ya fue respondida.';
+            }
+        }
+        else
+        {
+            $payload = 'Esa combinacion de mesa y pedido no existen.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload);
     }
 
     ///////////////////////////////////////////////////////////// DELETE
