@@ -75,14 +75,28 @@ class Manager
             $data = DataAccess::SelectWhere('pedidos', null, ['codigoPedido'], [$code]);
         }
 
-        foreach($data as $key => $bit)
+        foreach($data as $index => &$elem)
         {
-            if($bit['fechaBaja'] != null)
+            if($elem['fechaBaja'] != null) // Se borran los pedidos que fueron cerrados para que no sean visibles
             {
-                unset($data[$key]);
+                unset($data[$index]);
+            }
+            else
+            {
+                foreach($elem as $key => &$value) // Se borra la fecha de baja del pedido.
+                {                
+                    if($key != 'fechaBaja' && $value == null)
+                    {
+                        $value = 'no definido';                    
+                    }
+                    if($key == 'fechaBaja')
+                    {
+                        unset($elem['fechaBaja']);
+                    }
+                }
             }
         }
-
+        
         foreach($data as &$bit)
         {
             $nombreProducto = '';
@@ -709,7 +723,7 @@ class Manager
         $token = $request->getHeaderLine('Authorization');
         $csv = isset($params['csv']) ? $params['csv'] : null;
         $pdf = isset($params['pdf']) ? $params['pdf'] : null;
-                
+
         if($token)
         {        
             $data = AuthJWT::GetData($token);
