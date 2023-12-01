@@ -233,6 +233,44 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron productos.", 'Obtener productos');
     }
 
+    public static function GetMostUsedTable($request, $response)
+    {
+        $data = DataAccess::Select('pedidos', 'idMesa');
+        $payload = '';
+        if($data)
+        {
+            $contadorMesas = [];
+            foreach($data as $mesa)
+            {
+                if(!isset($contadorMesas[$mesa['idMesa']]))
+                {
+                    $contadorMesas[$mesa['idMesa']] = 0;
+                }
+                $contadorMesas[$mesa['idMesa']]++;
+            }
+
+            $contadorMax = 0;
+            $masUsada = null;
+            foreach($contadorMesas as $elem => $count)
+            {
+                if($count > $contadorMax)
+                {
+                    $contadorMax = $count;
+                    
+                    $masUsada = $elem;
+                }
+            }
+
+            $payload = "La mesa mas usada fue la mesa {$masUsada}.";
+        }
+        else
+        {
+            $payload = 'No se uso ninguna mesa hasta ahora.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload);
+    }
+
     ///////////////////////////////////////////////////////////// PUT
     
     public static function UpdateEntity($request, $response)

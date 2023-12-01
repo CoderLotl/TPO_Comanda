@@ -63,6 +63,7 @@ $app->group('/obtener', function (RouteCollectorProxy $group)
     $group->get('/productos', \Model\Services\Manager::class . '::GetProducts')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->get('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
     $group->get('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');; // Devuelve todas las ordenes visibles para el tipo de usuario.
+    $group->get('/mesa_mas_usada', \Model\Services\Manager::class . '::GetMostUsedTable')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
 $app->group('/alta', function (RouteCollectorProxy $group)

@@ -12,46 +12,52 @@ class AuthMW
     public static function ValidateUser($request, $handler)    
     {
         $token = $request->getHeaderLine('Authorization');
-        $params = null;
-
-        if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
+        if($token)
         {
-            $params = $request->getQueryParams();
-        }
-        else
-        {
-            $params = $request->getParsedBody();
-        }                
 
-        // --------------------------------
-
-        if(isset($params['accion']) && isset($params['objeto']))
-        {            
-            $action = $params['accion'];
-            $object = $params['objeto'];                        
-        }
-        else
-        {
-            $e = 'Request incompleta: ';
-            if (!isset($_REQUEST['accion'])) {
-                $e .= 'accion no definida; ';
+            $params = null;
+    
+            if($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'DELETE')
+            {
+                $params = $request->getQueryParams();
             }
-            if (!isset($_REQUEST['objeto'])) {
-                $e .= 'objeto no definido; ';
+            else
+            {
+                $params = $request->getParsedBody();
+            }                
+    
+            // --------------------------------
+    
+            if(isset($params['accion']) && isset($params['objeto']))
+            {            
+                $action = $params['accion'];
+                $object = $params['objeto'];                        
             }
-            throw new Exception($e);
+            else
+            {
+                $e = 'Request incompleta: ';
+                if (!isset($_REQUEST['accion'])) {
+                    $e .= 'accion no definida; ';
+                }
+                if (!isset($_REQUEST['objeto'])) {
+                    $e .= 'objeto no definido; ';
+                }
+                throw new Exception($e);
+            }
+    
+            // --------------------------------
+            
+            $userType = AuthJWT::GetData($token)->rol;            
+            
+            if( self::ValidateAction($action, $object, $userType, $params) )
+            {
+                return $handler->handle($request);
+            }
+    
+            throw new Exception('Este usuario no tiene este derecho.');        
         }
 
-        // --------------------------------
-        
-        $userType = AuthJWT::GetData($token)->rol;            
-        
-        if( self::ValidateAction($action, $object, $userType, $params) )
-        {
-            return $handler->handle($request);
-        }
-
-        throw new Exception('Este usuario no tiene este derecho.');        
+        throw new Exception('Debe loguearse para esta accion.');        
     }
 
     public static function GetRole($token)
@@ -144,22 +150,30 @@ class AuthMW
     public static function WardSocio($request, $handler)
     {        
         $token = $request->getHeaderLine('Authorization');
-
-        if(isset($token) && self::GetRole($token) == 'socio')
-        {            
-            return $handler->handle($request);
+        if($token)
+        {
+            if(isset($token) && self::GetRole($token) == 'socio')
+            {            
+                return $handler->handle($request);
+            }
+            throw new Exception('Este usuario no tiene este derecho.'); 
         }
-        throw new Exception('Este usuario no tiene este derecho.'); 
+        throw new Exception('Debe loguearse para esta accion.');        
     }
 
     public static function WardMozo($request, $handler)
     {
         $token = $request->getHeaderLine('Authorization');
 
-        if(isset($token) && (self::GetRole($token) == 'socio' || self::GetRole($token) == 'mozo'))
+        if($token)
         {
-            return $handler->handle($request);
+            if(isset($token) && (self::GetRole($token) == 'socio' || self::GetRole($token) == 'mozo'))
+            {
+                return $handler->handle($request);
+            }
+            throw new Exception('Este usuario no tiene este derecho.'); 
         }
-        throw new Exception('Este usuario no tiene este derecho.'); 
+
+        throw new Exception('Debe loguearse para esta accion.');        
     }
 }
