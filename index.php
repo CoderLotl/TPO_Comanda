@@ -28,7 +28,7 @@ $errorMiddleware = function ($request, $exception, $displayErrorDetails) use ($a
 };
 
 // Add error middleware
-//$app->addErrorMiddleware(true, true, true)->setDefaultErrorHandler($errorMiddleware);
+$app->addErrorMiddleware(true, true, true)->setDefaultErrorHandler($errorMiddleware);
 
 // Add parse body
 $app->addBodyParsingMiddleware();

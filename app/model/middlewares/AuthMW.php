@@ -21,7 +21,8 @@ class AuthMW
         else
         {
             $params = $request->getParsedBody();
-        }      
+        }
+        var_dump($token);        
 
         // --------------------------------
 

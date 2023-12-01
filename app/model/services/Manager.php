@@ -48,9 +48,9 @@ class Manager
         $data = null;
         $productType = null;
         
-        $token = $request->getHeaderLine('Authorization');
+        $token = $request->getHeaderLine('Authorization');        
         if($token)
-        {
+        {            
             $rol = AuthMW::GetRole($token);
             switch($rol)
             {
@@ -723,8 +723,9 @@ class Manager
         $token = $request->getHeaderLine('Authorization');
         $csv = isset($params['csv']) ? $params['csv'] : null;
         $pdf = isset($params['pdf']) ? $params['pdf'] : null;
+        $login = false;
 
-        if($token)
+        if($token && $login)
         {        
             $data = AuthJWT::GetData($token);
             $fecha = new DateTime();
