@@ -43,25 +43,28 @@ class Manager
     public static function GetOrdersByCode($request, $response)
     {
         $_req = self::GetRequest($request);
-        $token = $request->getHeaderLine('Authorization');        
         $code = $_req['codigo'];        
         $productos = DataAccess::Select('productos');
-        $rol = AuthMW::GetRole($token);
         $data = null;
         $productType = null;
         
-        switch($rol)
+        $token = $request->getHeaderLine('Authorization');
+        if($token)
         {
-            case 'cervecero':
-                $productType = 'cerveza';
-                break;
-            case 'bartender':
-                $productType = 'bebida';
-                break;
-            case 'cocinero':
-                $productType = 'comida';
-                break;
-        }        
+            $rol = AuthMW::GetRole($token);
+            switch($rol)
+            {
+                case 'cervecero':
+                    $productType = 'cerveza';
+                    break;
+                case 'bartender':
+                    $productType = 'bebida';
+                    break;
+                case 'cocinero':
+                    $productType = 'comida';
+                    break;
+            }        
+        }
 
         if($productType)
         {
@@ -704,22 +707,26 @@ class Manager
     {
         $params = self::GetRequest($request);
         $token = $request->getHeaderLine('Authorization');
-        $data = AuthJWT::GetData($token);
-        $fecha = new DateTime();
-        $fecha = $fecha->format('Y-m-d H:i:s');
         $csv = isset($params['csv']) ? $params['csv'] : null;
-        $pdf = isset($params['pdf']) ? $params['pdf'] : null;        
-        
-        // - - - - - LOG
-        /*
-        if(!$operacion)
-        {
-            DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso'], [$data->id, $fecha, $origin]);
+        $pdf = isset($params['pdf']) ? $params['pdf'] : null;
+                
+        if($token)
+        {        
+            $data = AuthJWT::GetData($token);
+            $fecha = new DateTime();
+            $fecha = $fecha->format('Y-m-d H:i:s');
+            
+            // - - - - - LOG
+            
+            if(!$operacion)
+            {
+                DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso'], [$data->id, $fecha, $origin]);
+            }
+            else
+            {
+                DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso', 'operacion'], [$data->id, $fecha, $origin, $operacion]);
+            }
         }
-        else
-        {
-            DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso', 'operacion'], [$data->id, $fecha, $origin, $operacion]);
-        }*/
 
         // - - - - - CSV & PDF
 
