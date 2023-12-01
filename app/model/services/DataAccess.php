@@ -217,13 +217,20 @@ class DataAccess
             $lastColumn = end($columns);
             foreach($columns as $key => $col)
             {
-                $setClause .= "`{$col}` = '{$values[$key]}'";
+                if($values[$key] == null)
+                {
+                    $setClause .= "`{$col}` = NULL";
+                }
+                else
+                {
+                    $setClause .= "`{$col}` = '{$values[$key]}'";
+                }
                 if($col != $lastColumn)
                 {
                     $setClause .= ', ';
                 }
             }
-            $query = "UPDATE `{$table}` SET {$setClause} WHERE `{$whereColumn}` = '{$whereValue}'";
+            $query = "UPDATE `{$table}` SET {$setClause} WHERE `{$whereColumn}` = '{$whereValue}'";            
             $statement = self::$pdo->prepare($query);
 
             return $statement->execute();

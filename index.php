@@ -28,7 +28,7 @@ $errorMiddleware = function ($request, $exception, $displayErrorDetails) use ($a
 };
 
 // Add error middleware
-$app->addErrorMiddleware(true, true, true)->setDefaultErrorHandler($errorMiddleware);;
+$app->addErrorMiddleware(true, true, true)->setDefaultErrorHandler($errorMiddleware);
 
 // Add parse body
 $app->addBodyParsingMiddleware();
@@ -81,12 +81,14 @@ $app->group('/modificar', function (RouteCollectorProxy $group)
     $group->put('/mesa', \Model\Services\Manager::class . '::UpdateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->put('/abrir_mesa', \Model\Services\Manager::class . '::OpenTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->put('/producto', \Model\Services\Manager::class . '::UpdateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/usuarios', \Model\Services\Manager::class . '::UpdateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
 $app->group('/baja', function (RouteCollectorProxy $group)
 {
-    $group->delete('/empleado', \Model\Services\Manager::class . '::DeleteEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+    $group->delete('/usuarios', \Model\Services\Manager::class . '::DeleteEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->delete('/pedidos_todos', \Model\Services\Manager::class . '::CloseAllOrders')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
+    $group->delete('/pedidos', \Model\Services\Manager::class . '::CloseOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
 });
 
 $app->run();

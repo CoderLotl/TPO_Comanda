@@ -3,28 +3,11 @@ namespace Model\Classes;
 
 class GenericEntity
 {
-    public function __get($propiedad)
-    {
-        if(property_exists($this, $propiedad))
-        {
-            return $this->$propiedad;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    public $attributes;
 
-    public function __set($propiedad, $valor)
+    public function __construct(array $attributes)
     {
-        if(property_exists($this, $propiedad))
-        {
-            $this->$propiedad = $valor;
-        }
-        else
-        {
-            echo "No existe " . $propiedad;
-        }
+        $this->attributes = $attributes;
     }
 
     /**
@@ -33,13 +16,13 @@ class GenericEntity
     */
     public function __toString()
     {
-        $attributes = get_object_vars($this);
+        $att = $this->attributes;
         $string = "";
 
-        end($attributes);
-        $lastkey = key($attributes);
+        end($att);
+        $lastkey = key($att);
 
-        foreach($attributes as $key => $value)
+        foreach($att as $key => $value)
         {
             $string .= "{$key}: {$value}";
             if($key !== $lastkey)

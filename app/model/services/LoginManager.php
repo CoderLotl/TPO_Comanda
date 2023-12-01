@@ -5,6 +5,7 @@ namespace Model\Services;
 use Model\Services\DataAccess;
 use Model\Services\AuthJWT;
 use Model\Utilities\Log;
+use DateTime;
 
 class LoginManager
 {
@@ -21,9 +22,17 @@ class LoginManager
             $userID = $user[0]['id'];
             $userType = DataAccess::SelectWithJoin('tipo_usuario', 'usuarios', 'codigo', 'tipo', 'id', $userID, ['tipo_usuario.tipo'])[0]['tipo'];
 
-            $data = ['user' => $user[0]['user'], 'rol' => $userType];
+            $data = ['user' => $user[0]['user'], 'id' => $userID, 'rol' => $userType];
             $token = AuthJWT::NewToken($data);
             $payload = ["mensaje" => "Usuario logeado.", "token" => $token['jwt']];
+
+
+            $fecha = new DateTime();
+            $fecha = $fecha->format('Y-m-d H:i:s');       
+            
+            // - - - - - LOG
+            
+            DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso'], [$userID, $fecha, 'Login']);            
             
             return self::ReturnResponse($request, $response, $payload);
         }

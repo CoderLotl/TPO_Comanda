@@ -3,10 +3,12 @@
 namespace Model\Services;
 
 use DateTime;
+use Model\Classes\GenericEntity;
 use Model\Middlewares\AuthMW;
 use Model\Services\DataAccess;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
+use TCPDF;
 
 class Manager
 {
@@ -18,8 +20,7 @@ class Manager
     {
         $_req = self::GetRequest($request);
         $type = $_req['entidad'];
-        $data = DataAccess::Select($type);
-        $csv = isset($_req['csv']) ? $_req['csv'] : null;
+        $data = DataAccess::Select($type);        
         
         if($type == 'usuarios')
         {
@@ -36,15 +37,14 @@ class Manager
             }
         }
 
-        return self::ReturnResponse($request, $response, $data, $csv);
+        return self::ReturnResponse($request, $response, $data, 'Obtener Entidades');
     }
 
     public static function GetOrdersByCode($request, $response)
     {
         $_req = self::GetRequest($request);
         $token = $request->getHeaderLine('Authorization');        
-        $code = $_req['codigo'];
-        $csv = isset($_req['csv']) ? $_req['csv'] : null;
+        $code = $_req['codigo'];        
         $productos = DataAccess::Select('productos');
         $rol = AuthMW::GetRole($token);
         $data = null;
@@ -100,7 +100,7 @@ class Manager
             $data = 'No hay pedidos vigentes para mostrar.';
         }
 
-        return self::ReturnResponse($request, $response, $data, $csv);
+        return self::ReturnResponse($request, $response, $data, 'Obtener ordenes por codigo');
     }
 
     public static function GetAllOrders($request, $response)
@@ -110,8 +110,7 @@ class Manager
         $token = $request->getHeaderLine('Authorization');        
         $rol = AuthMW::GetRole($token);
         $data = null;
-        $productType = null;
-        $csv = isset($_req['csv']) ? $_req['csv'] : null;
+        $productType = null;        
         
         switch($rol)
         {
@@ -163,13 +162,12 @@ class Manager
             $data = 'No hay pedidos vigentes para mostrar.';
         }
 
-        return self::ReturnResponse($request, $response, $data, $csv);
+        return self::ReturnResponse($request, $response, $data, 'Obtener todas las ordenes');
     }
 
     public static function GetUsersByRole($request, $response)
     {
-        $params = self::GetRequest($request);
-        $csv = isset($params['csv']) ? $params['csv'] : null;
+        $params = self::GetRequest($request);        
         $data = DataAccess::SelectWithJoin(
             'usuarios', // tabla 1
             'tipo_usuario', // tabla 2
@@ -178,15 +176,13 @@ class Manager
             'tipo', $params['buscar'], // donde col de tabla 2 = 'buscar'
             ['usuarios.user', 'tipo_usuario.tipo', 'usuarios.alta', 'usuarios.baja'] // datos a traer
         );
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo.", $csv);
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron usuarios de ese tipo.", 'Obtener usuarios por rol');
     }
 
     public static function GetTables($request, $response)
     {
         $states = DataAccess::Select('estado_mesas');
-        $data = DataAccess::Select('mesas');
-        $_req = self::GetRequest($request);
-        $csv = isset($_req['csv']) ? $_req['csv'] : null;
+        $data = DataAccess::Select('mesas');        
 
         foreach($data as &$bit)
         {
@@ -203,14 +199,12 @@ class Manager
                 }
             }
         }
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", $csv);
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", 'Obtener mesas');
     }
 
     public static function GetProducts($request, $response)
     {        
-        $data = DataAccess::Select('productos');
-        $_req = self::GetRequest($request);
-        $csv = isset($_req['csv']) ? $_req['csv'] : null;
+        $data = DataAccess::Select('productos');        
 
         foreach($data as $key => &$bit)
         {
@@ -219,7 +213,7 @@ class Manager
                 unset($data[$key]);
             }
         }
-        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron mesas.", $csv);
+        return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron productos.", 'Obtener productos');
     }
 
     ///////////////////////////////////////////////////////////// PUT
@@ -232,7 +226,7 @@ class Manager
         $values = $_req['val'];
 
         $data = DataAccess::Update($table, $columns, $values, $_req['where'], $_req['value']);
-        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.", 'Actualizar entidad');
     }
 
     public static function UpdateOrder($request, $response)
@@ -254,7 +248,7 @@ class Manager
         }       
         
         $data = DataAccess::Update('pedidos', $columns, $values, 'id', $id);
-        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.", 'Actualizar orden');
     }
 
     public static function UpdateTable($request, $response)
@@ -276,7 +270,7 @@ class Manager
         }       
         
         $data = DataAccess::Update('mesas', $columns, $values, 'id', $id);
-        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.", 'Actualizar mesa');
     }
 
     public static function UpdateProduct($request, $response)
@@ -298,7 +292,49 @@ class Manager
         }       
         
         $data = DataAccess::Update('productos', $columns, $values, 'id', $id);
-        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.");
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.", 'Actualizar producto');
+    }
+
+    public static function UpdateUser($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $id = $params['id'];
+        $columns = [];
+        $values = [];
+        foreach($params as $key => $val)
+        {
+            if(in_array($key, ['user', 'tipo', 'password', 'alta', 'baja']))
+            {
+                if($val != '' && !($key == 'tipo' && !in_array($val, [1, 2, 3, 4, 5])))
+                {
+                    if($val == 'null')
+                    {
+                        $val = null;                        
+                    }                    
+                    array_push($columns, $key);                
+                    array_push($values, $val);
+                }
+            }
+        }        
+        var_dump($values);
+        $data = DataAccess::Update('usuarios', $columns, $values, 'id', $id);
+        return self::ReturnResponse($request, $response, $data ? "Actualizacion exitosa." : "Error en la actualizacion.", 'Actualizar usuario');
+    }
+
+    public static function OpenTable($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $mesa = DataAccess::SelectWhere('mesas', null, ['id'], [$params['id']]);
+        if($mesa)
+        {
+            $mesa = $mesa[0];
+            DataAccess::Update('mesas', ['estado'], [5], 'id', $params['id']);
+            return self::ReturnResponse($request, $response, "La mesa {$params['id']} ha sido abierta.");
+        }
+        else
+        {
+            return self::ReturnResponse($request, $response, 'La mesa buscada no existe.');
+        }
     }
     
     ///////////////////////////////////////////////////////////// POST
@@ -327,14 +363,14 @@ class Manager
         array_push($columns, 'id', 'alta');
         array_push($values, $id, $date);
                     
-        if(count(array_diff(ENTITIES['User'], $columns)) == 0) // Comparo si al menos los elementos obligatorios estan dentro de los parametros.
+        $data = DataAccess::Insert($table, $columns, $values);
+        if($data)
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Empleado creado con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response, "Empleado creado con éxito.", 'Alta empleado', $id);
         }
         else
-        {            
-            return self::ReturnResponse($request, $response, "Error interno.");
+        {
+            return self::ReturnResponse($request, $response, "Error en la interacción con la base de datos", 'Alta empleado');
         }
     }
 
@@ -372,14 +408,14 @@ class Manager
         array_push($columns, 'id', 'codigo_mesa', 'estado');
         array_push($values, $id, $code, 5);        
 
-        if(count(array_diff(ENTITIES['Table'], $columns)) == 0)
+        $data = DataAccess::Insert($table, $columns, $values);
+        if($data)
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Mesa creada con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response, "Mesa creada con éxito.", 'Alta mesa', $id);
         }
         else
         {
-            return self::ReturnResponse($request, $response, "Error interno.");
+            return self::ReturnResponse($request, $response, "Error en la interacción con la base de datos", 'Alta mesa');        
         }
     }
 
@@ -396,9 +432,9 @@ class Manager
         {
             $uploadedFile = $uploadedFiles['csv'];                        
             $fileContents = $uploadedFile->getStream()->getContents();
-            $lines = explode(PHP_EOL, $fileContents);            
-            $columns = explode(',', $lines[0]);
-            $values = explode(',', $lines[1]);
+            $elem = self::ReconstructFromCSV($fileContents, ['id', 'fechaAlta', 'fechaBaja']);
+            $columns = $elem['columns'];
+            $values = $elem['values'];            
         }
         else
         {
@@ -406,16 +442,16 @@ class Manager
             $values = $params['val'];
         }
         array_push($columns, 'id', 'fechaAlta');
-        array_push($values, $id, $date);
-
-        if(count(array_diff(ENTITIES['Product'], $columns)) == 0)
+        array_push($values, $id, $date);        
+        $data = DataAccess::Insert($table, $columns, $values);
+        
+        if($data)
         {
-            $data = DataAccess::Insert($table, $columns, $values);
-            return self::ReturnResponse($request, $response, $data ? "Producto creada con éxito." : "Error en la interacción con la base de datos");
+            return self::ReturnResponse($request, $response,"Producto creado con éxito.", 'Alta producto', $id);        
         }
         else
         {
-            return self::ReturnResponse($request, $response, "Error interno.");
+            return self::ReturnResponse($request, $response, "Error en la interacción con la base de datos", 'Alta producto');        
         }
     }
 
@@ -512,11 +548,11 @@ class Manager
                 }
             }        
 
-            return self::ReturnResponse($request, $response, "Orden creada con éxito.");
+            return self::ReturnResponse($request, $response, "Orden creada con éxito.", 'Alta pedido', $code);
         }
         else
         {
-            return self::ReturnResponse($request, $response, "La mesa se encuentra cerrada. Pedido no realizado.");
+            return self::ReturnResponse($request, $response, "La mesa se encuentra cerrada. Pedido no realizado.", 'Alta pedido');
         }        
     }
 
@@ -556,15 +592,15 @@ class Manager
 
                     DataAccess::UpdateMultipleWhere('pedidos', ['fotoMesa'], [$fotoMesa], ['idMesa', 'nombreCliente', 'estado'], [$idMesa, $nombreCliente, $pedido['estado']]);
                     
-                    return self::ReturnResponse($request, $response, 'Imagen subida con exito.');
+                    return self::ReturnResponse($request, $response, 'Imagen subida con exito.', 'Carga imagen', $idMesa);
                 }
             }
 
-            return self::ReturnResponse($request, $response, 'Error: No hay pedidos para esa mesa o cliente.');
+            return self::ReturnResponse($request, $response, 'Error: No hay pedidos para esa mesa o cliente.', 'Carga imagen');
         }
         else
         {
-            return self::ReturnResponse($request, $response, 'Error: No hay imagen.');
+            return self::ReturnResponse($request, $response, 'Error: No hay imagen.', 'Carga imagen');
         }
     }
 
@@ -579,12 +615,29 @@ class Manager
             $order = $orders[0];
             DataAccess::Update('pedidos', ['estado'], [4], 'codigoPedido', $params['codigoPedido']);
             DataAccess::Update('mesas', ['estado'], [4], 'estado', $order['idMesa']);
-            return self::ReturnResponse($request, $response, "Todos los pedidos de codigo {$params['codigoPedido']} han sido cerrados.");
+            return self::ReturnResponse($request, $response, "Todos los pedidos de codigo {$params['codigoPedido']} han sido cerrados.", 'Cerrar todas las ordenes', $params['codigoPedido']);
         }
         else
         {
-            return self::ReturnResponse($request, $response, 'No hay pedidos abiertos con ese codigo.');
+            return self::ReturnResponse($request, $response, 'No hay pedidos abiertos con ese codigo.', 'Cerrar todas las ordenes');
         }
+    }
+
+    public static function CloseOrder($request, $response)
+    {
+        $params = self::GetRequest($request);
+
+        $orders = DataAccess::SelectWhere('pedidos', null, ['id'], [$params['id']]);
+        if($orders)
+        {
+            $order = $orders[0];
+            if($order['estado'] != 4)
+            {
+                DataAccess::Update('pedidos', ['estado'], [4], 'id', $params['id']);            
+                return self::ReturnResponse($request, $response, "El pedido de ID {$params['id']} ha sido cerrado.", 'Cerrar orden', $params['id']);
+            }
+        }
+        return self::ReturnResponse($request, $response, 'No hay pedidos abiertos con ese ID.', 'Cerrar orden');        
     }
 
     public static function DeleteEmployee($request, $response)
@@ -598,41 +651,78 @@ class Manager
             if($empleado['baja'] == null)
             {
                 DataAccess::Update('usuarios', ['baja'], [date_format(new DateTime(), 'Y-m-d_H-i-s')], 'id', $params['id']);
-                return self::ReturnResponse($request, $response, 'Empleado dado de baja con exito.');
+                return self::ReturnResponse($request, $response, 'Empleado dado de baja con exito.', 'Baja empleado', $params['id']);
             }
             else
             {
-                return self::ReturnResponse($request, $response, 'Error: Ese empleado ya se encuentra dado de baja.');
+                return self::ReturnResponse($request, $response, 'Error: Ese empleado ya se encuentra dado de baja.', 'Baja empleado');
             }
         }
         else
         {
-            return self::ReturnResponse($request, $response, 'El usuario buscado no existe.');
-        }
-    }
-
-    public static function OpenTable($request, $response)
-    {
-        $params = self::GetRequest($request);
-        $mesa = DataAccess::SelectWhere('mesas', null, ['id'], [$params['id']]);
-        if($mesa)
-        {
-            $mesa = $mesa[0];
-            DataAccess::Update('mesas', ['estado'], [5], 'id', $params['id']);
-            return self::ReturnResponse($request, $response, "La mesa {$params['id']} ha sido abierta.");
-        }
-        else
-        {
-            return self::ReturnResponse($request, $response, 'La mesa buscada no existe.');
+            return self::ReturnResponse($request, $response, 'El usuario buscado no existe.', 'Baja empleado');
         }
     }
     #endregion
     /////////////////////////////////////////////////////////////
     #region - - - PRIVATE
 
-
-    private static function ReturnResponse($request, $response, $payload, $csv = null)
+    private static function ReconstructFromCSV($fileContents, array $except = null)
     {        
+        $lines = explode(PHP_EOL, $fileContents);
+        $columns = str_getcsv($lines[0]);
+        $values = str_getcsv($lines[1]);
+        foreach($values as &$value)
+        {
+            if($value == 'null')
+            {
+                $value = null;
+            }
+        }
+
+        if($except)
+        {
+            foreach ($except as $column)
+            {
+                $columnIndex = array_search($column, $columns);
+            
+                if ($columnIndex !== false)
+                {
+                    unset($columns[$columnIndex]);
+                    unset($values[$columnIndex]);
+                }
+            }            
+            
+            $columns = array_values($columns);
+            $values = array_values($values);
+        }
+        
+        return ['columns' => $columns, 'values' => $values];
+    }
+
+    private static function ReturnResponse($request, $response, $payload, $origin = null, $operacion = null)
+    {
+        $params = self::GetRequest($request);
+        $token = $request->getHeaderLine('Authorization');
+        $data = AuthJWT::GetData($token);
+        $fecha = new DateTime();
+        $fecha = $fecha->format('Y-m-d H:i:s');
+        $csv = isset($params['csv']) ? $params['csv'] : null;
+        $pdf = isset($params['pdf']) ? $params['pdf'] : null;        
+        
+        // - - - - - LOG
+        /*
+        if(!$operacion)
+        {
+            DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso'], [$data->id, $fecha, $origin]);
+        }
+        else
+        {
+            DataAccess::Insert('accesos', ['userID', 'fecha', 'recurso', 'operacion'], [$data->id, $fecha, $origin, $operacion]);
+        }*/
+
+        // - - - - - CSV & PDF
+
         if($csv)
         {
             $csvContent = '';
@@ -642,15 +732,24 @@ class Manager
                 {
                     $fields = array_keys($payload[0]);
                     $csvContent .= implode(',', $fields) . "\n";   
-                    
+                                        
+                    $totalRows = count($payload);
+                    $counter = 1;
                     foreach ($payload as $row)
                     {
-                        $csvContent .= implode(',', array_values($row)) . "\n";
+
+                        $csvRow = array_map(function ($value)
+                        {
+                            return $value === null ? 'null' : $value;
+                        }, array_values($row));
+
+                        $csvContent .= implode(',', array_values($csvRow));
+                        if($counter != $totalRows)
+                        {
+                            $csvContent .= "\n";
+                        }
+                        $counter++;
                     }
-                }
-                else
-                {
-                    $csvContent = $payload;
                 }
             }
             else
@@ -664,11 +763,40 @@ class Manager
     
             return $response;
         }
-        else
+        if($pdf)
         {
-            $response->getBody()->write(json_encode(['response' => $payload]));
-            return $response->withHeader('Content-Type', 'application/json');
+            $pdfFile = new TCPDF();
+            $pdfFile->AddPage();
+            $content = '';
+
+            if(is_array($payload))
+            {
+                 foreach($payload as $load)
+                 {
+                    $elem = new GenericEntity($load);
+                    $content .= $elem->__toString() . "<br>";
+                 }
+            }
+            else
+            {
+                $content = $payload;
+            }
+
+            $pdfContent = $content;
+            $pdfFile->writeHTML($pdfContent);
+            $pdfFile->Output("{$pdf}" . '.pdf');            
+                
+            $response = $response->withHeader('Content-Type', 'application/pdf');
+            $response = $response->withHeader('Content-Disposition', 'attachment; filename="' . "{$pdf}". 'pdf"');
+            
+            $response->getBody()->write();
+
+            return $response;
         }
+
+        $response = $response->withHeader('Content-Type', 'application/json');
+        $response->getBody()->write(json_encode(['response' => $payload]));
+        return $response->withHeader('Content-Type', 'application/json');        
     }
 
     public static function GetRequest($request)
