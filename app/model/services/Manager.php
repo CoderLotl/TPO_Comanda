@@ -234,7 +234,7 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron productos.", 'Obtener productos');
     }
 
-    public static function GetMostUsedTable($request, $response)
+    public static function GetMostUsedTable($request, $response, $internalUse = null)
     {
         $file = file(APP_ROOT . '/config/db.txt');
         $host = trim(explode(':', $file[0])[1]);
