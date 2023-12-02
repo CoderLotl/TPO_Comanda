@@ -95,6 +95,7 @@ $app->group('/baja', function (RouteCollectorProxy $group)
 $app->group('/encuesta', function (RouteCollectorProxy $group)
 {
     $group->post('/responder', \Model\Services\Manager::class . '::Encuesta');
+    $group->get('/mejor_puntuacion', \Model\Services\Manager::class . '::GetEncuestaMejorPuntuacion')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
 $app->get('/logo', \Model\Services\Manager::class . '::GetLogo')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');

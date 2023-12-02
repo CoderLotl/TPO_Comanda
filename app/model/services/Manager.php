@@ -8,6 +8,7 @@ use Model\Middlewares\AuthMW;
 use Model\Services\DataAccess;
 use Model\Utilities\CodeGenerator;
 use Model\Utilities\Log;
+use PDO;
 use TCPDF;
 
 class Manager
@@ -235,18 +236,32 @@ class Manager
 
     public static function GetMostUsedTable($request, $response)
     {
-        $data = DataAccess::Select('pedidos', 'idMesa');
+        $file = file(APP_ROOT . '/config/db.txt');
+        $host = trim(explode(':', $file[0])[1]);
+        $db = trim(explode(':', $file[1])[1]);
+        $username = trim(explode(':', $file[2])[1]);
+        $password = trim(explode(':', $file[3])[1]);
+        $pdo = new PDO("mysql:host=$host;dbname=$db", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $query =    "SELECT pedidos.idMesa, mesas.codigo_mesa
+                    FROM pedidos
+                    JOIN mesas ON pedidos.idMesa = mesas.id;";
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+
+        $data = $statement->fetchAll(PDO::FETCH_ASSOC);        
         $payload = '';
         if($data)
         {
             $contadorMesas = [];
             foreach($data as $mesa)
             {
-                if(!isset($contadorMesas[$mesa['idMesa']]))
+                if(!isset($contadorMesas[$mesa['codigo_mesa']]))
                 {
-                    $contadorMesas[$mesa['idMesa']] = 0;
+                    $contadorMesas[$mesa['codigo_mesa']] = 0;
                 }
-                $contadorMesas[$mesa['idMesa']]++;
+                $contadorMesas[$mesa['codigo_mesa']]++;
             }
 
             $contadorMax = 0;
@@ -261,7 +276,7 @@ class Manager
                 }
             }
 
-            $payload = "La mesa mas usada fue la mesa {$masUsada}.";
+            $payload = "La mesa mas usada fue la mesa de codigo: {$masUsada}.";
         }
         else
         {
@@ -278,6 +293,33 @@ class Manager
         $imagePath = APP_ROOT . '/img' . '/logo.jpg';
         $pdfFile->Image($imagePath, 0, 0, 200, 200);
         $pdfFile->Output('logo.pdf', 'D');
+    }
+
+    public static function GetEncuestaMejorPuntuacion($request, $response)
+    {
+        $encuestas = DataAccess::Select('encuesta');
+        $payload = '';
+        if($encuestas)
+        {
+            $puntajeEnquestas = [];
+            for($i = 0; $i < count($encuestas); $i++)
+            {
+                $elem = $encuestas[$i];
+                $puntaje = $elem['puntuacionMesa'] + $elem['puntuacionRestaurante'] + $elem['puntuacionMozo'] + $elem['puntuacionCocinero'];
+                array_push($puntajeEnquestas, $puntaje);
+            }
+
+            $mayorPuntaje = max($puntajeEnquestas);
+            $mayorPuntajeIndex = array_search($mayorPuntaje, $puntajeEnquestas);
+
+            $payload = $encuestas[$mayorPuntajeIndex]['experiencia'];
+        }
+        else
+        {
+            $payload = 'No hay encuestas que se hayan respondido.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload);
     }
 
     ///////////////////////////////////////////////////////////// PUT
