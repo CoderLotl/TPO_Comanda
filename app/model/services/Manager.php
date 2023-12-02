@@ -234,54 +234,19 @@ class Manager
         return self::ReturnResponse($request, $response, $data ? $data : "No se encontraron productos.", 'Obtener productos');
     }
 
-    public static function GetMostUsedTable($request, $response, $internalUse = null)
+    public static function GetMostUsedTable($request, $response)
     {
-        $file = file(APP_ROOT . '/config/db.txt');
-        $host = trim(explode(':', $file[0])[1]);
-        $db = trim(explode(':', $file[1])[1]);
-        $username = trim(explode(':', $file[2])[1]);
-        $password = trim(explode(':', $file[3])[1]);
-        $pdo = new PDO("mysql:host=$host;dbname=$db", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $payload = Statistics::MostUsedTable();
 
-        $query =    "SELECT pedidos.idMesa, mesas.codigo_mesa
-                    FROM pedidos
-                    JOIN mesas ON pedidos.idMesa = mesas.id;";
-        $statement = $pdo->prepare($query);
-        $statement->execute();
+        return self::ReturnResponse($request, $response, $payload);
+    }
 
-        $data = $statement->fetchAll(PDO::FETCH_ASSOC);        
+    public static function GetAllStatistics($request, $response)
+    {
         $payload = '';
-        if($data)
-        {
-            $contadorMesas = [];
-            foreach($data as $mesa)
-            {
-                if(!isset($contadorMesas[$mesa['codigo_mesa']]))
-                {
-                    $contadorMesas[$mesa['codigo_mesa']] = 0;
-                }
-                $contadorMesas[$mesa['codigo_mesa']]++;
-            }
 
-            $contadorMax = 0;
-            $masUsada = null;
-            foreach($contadorMesas as $elem => $count)
-            {
-                if($count > $contadorMax)
-                {
-                    $contadorMax = $count;
-                    
-                    $masUsada = $elem;
-                }
-            }
-
-            $payload = "La mesa mas usada fue la mesa de codigo: {$masUsada}.";
-        }
-        else
-        {
-            $payload = 'No se uso ninguna mesa hasta ahora.';
-        }
+        $payload .= Statistics::MostUsedTable();
+        $payload .= Statistics::MostConsumedDish();        
 
         return self::ReturnResponse($request, $response, $payload);
     }
@@ -843,7 +808,7 @@ class Manager
         $token = $request->getHeaderLine('Authorization');
         $csv = isset($params['csv']) ? $params['csv'] : null;
         $pdf = isset($params['pdf']) ? $params['pdf'] : null;
-        $login = false;
+        $login = true;
 
         if($token && $login)
         {        

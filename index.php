@@ -98,6 +98,8 @@ $app->group('/encuesta', function (RouteCollectorProxy $group)
     $group->get('/mejor_puntuacion', \Model\Services\Manager::class . '::GetEncuestaMejorPuntuacion')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
+$app->get('/estadisticas', \Model\Services\Manager::class . '::GetAllStatistics')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+
 $app->get('/logo', \Model\Services\Manager::class . '::GetLogo')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 
 $app->run();
