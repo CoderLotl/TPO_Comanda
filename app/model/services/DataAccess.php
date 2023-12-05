@@ -161,39 +161,24 @@ class DataAccess
         }
     }
 
-    public static function Insert(string $table, array $columns, array $values)
+    function Insert(string $table, array $columns, array $values, $pdo)
     {
         try
         {
-            $queryColumns = '';
-            $lastColumn = end($columns);
-            foreach($columns as $col)
-            {
-                $queryColumns .= "`{$col}`";
-                if($col != $lastColumn)
-                {
-                    $queryColumns .= ', ';
-                }
-            }
+            $queryColumns = '`' . implode('`, `', $columns) . '`';
+            $placeholders = rtrim(str_repeat('?, ', count($values)), ', ');
     
-            $queryValues = '';
-            $lastValue = end($values);
-            foreach($values as $value)
-            {
-                $queryValues .= "'{$value}'";
-                if($value != $lastValue)
-                {
-                    $queryValues .= ', ';
-                }
-            }    
-            $query = "INSERT INTO `{$table}` ({$queryColumns}) VALUES ({$queryValues})";            
-            $statement = self::$pdo->prepare($query);            
+            $query = "INSERT INTO `{$table}` ({$queryColumns}) VALUES ({$placeholders})";
+            $statement = $pdo->prepare($query);
     
-            return $statement->execute();;
+            $statement->execute($values);
+    
+            return true;
         }
         catch(Exception $e)
         {
-            self::Catch($e);
+            echo $e;
+            return false;
         }
     }
 
