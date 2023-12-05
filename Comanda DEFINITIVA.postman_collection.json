@@ -1,0 +1,620 @@
+{
+	"info": {
+		"_postman_id": "7405ea10-ba3b-4beb-a6d3-aa51f078d816",
+		"name": "Comanda DEFINITIVA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26594780"
+	},
+	"item": [
+		{
+			"name": "/alta usuario",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accion",
+							"value": "alta",
+							"type": "text"
+						},
+						{
+							"key": "objeto",
+							"value": "usuarios",
+							"type": "text"
+						},
+						{
+							"key": "col[0]",
+							"value": "tipo",
+							"type": "text"
+						},
+						{
+							"key": "val[0]",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "col[1]",
+							"value": "user",
+							"type": "text"
+						},
+						{
+							"key": "val[1]",
+							"value": "Bartender",
+							"type": "text"
+						},
+						{
+							"key": "col[2]",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "val[2]",
+							"value": "abc",
+							"type": "text"
+						},
+						{
+							"key": "csv",
+							"type": "file",
+							"src": "/C:/Users/Aris/Desktop/test.csv",
+							"disabled": true
+						}
+					]
+				},
+				"url": "http://localhost/alta/usuarios"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "Cervecero",
+							"type": "text"
+						},
+						{
+							"key": "pass",
+							"value": "abc",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost/login"
+			},
+			"response": []
+		},
+		{
+			"name": "/alta producto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accion",
+							"value": "alta",
+							"type": "text"
+						},
+						{
+							"key": "objeto",
+							"value": "productos",
+							"type": "text"
+						},
+						{
+							"key": "col[0]",
+							"value": "descripcion",
+							"type": "text"
+						},
+						{
+							"key": "val[0]",
+							"value": "Alfajor",
+							"type": "text"
+						},
+						{
+							"key": "col[1]",
+							"value": "tipo",
+							"type": "text"
+						},
+						{
+							"key": "val[1]",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "col[2]",
+							"value": "precio",
+							"type": "text"
+						},
+						{
+							"key": "val[2]",
+							"value": "100",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost/alta/productos"
+			},
+			"response": []
+		},
+		{
+			"name": "1 alta pedido",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accion",
+							"value": "alta",
+							"type": "text"
+						},
+						{
+							"key": "objeto",
+							"value": "pedidos",
+							"type": "text"
+						},
+						{
+							"key": "idMesa",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "idProductos",
+							"value": "[4, 4]",
+							"type": "text"
+						},
+						{
+							"key": "cantidadProductos",
+							"value": "[1, 1]",
+							"type": "text"
+						},
+						{
+							"key": "nombreCliente",
+							"value": "Pepe",
+							"type": "text"
+						},
+						{
+							"key": "estado",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fotoMesa",
+							"type": "file",
+							"src": "/C:/Users/Aris/Desktop/error2.png",
+							"disabled": true
+						}
+					]
+				},
+				"url": "http://localhost/alta/pedidos"
+			},
+			"response": []
+		},
+		{
+			"name": "2 agregar foto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "accion",
+							"value": "alta",
+							"type": "text"
+						},
+						{
+							"key": "objeto",
+							"value": "foto_pedido",
+							"type": "text"
+						},
+						{
+							"key": "cliente",
+							"value": "Pepe",
+							"type": "text"
+						},
+						{
+							"key": "idMesa",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fotoMesa",
+							"type": "file",
+							"src": "/C:/Users/Aris/Desktop/error2.png"
+						}
+					]
+				},
+				"url": "http://localhost/alta/agregar_foto_pedido"
+			},
+			"response": []
+		},
+		{
+			"name": "3A obtener todas las ordenes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDE4MTI0NTksImV4cCI6MTc2MTgxMjQ1OSwiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IkNlcnZlY2VybyIsImlkIjo2LCJyb2wiOiJjZXJ2ZWNlcm8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9._6gIDBHQAfAxC9JqGF5kvxqME88R0KGl0IagBGjYmIQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": "http://localhost/obtener/ordenes_todas"
+			},
+			"response": []
+		},
+		{
+			"name": "3B modificar orden - INICIAR",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accion\": \"modificar\",\r\n    \"objeto\": \"pedidos\",\r\n    \"id\": 2,    \r\n    \"estado\": 2,\r\n    \"tiempoEstimado\": \"1 hora\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/preparar_pedido"
+			},
+			"response": []
+		},
+		{
+			"name": "4 obtener ordenes codigo",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost/obtener/ordenes_demora?codigoPedido=AAAA1&codigoMesa=wygdp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"obtener",
+						"ordenes_demora"
+					],
+					"query": [
+						{
+							"key": "codigoPedido",
+							"value": "AAAA1"
+						},
+						{
+							"key": "codigoMesa",
+							"value": "wygdp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5 obtener todas las ordenes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": "http://localhost/obtener/ordenes_demora_todas"
+			},
+			"response": []
+		},
+		{
+			"name": "6A modificar orden - INICIAR",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accion\": \"modificar\",\r\n    \"objeto\": \"pedidos\",\r\n    \"id\": 2,    \r\n    \"estado\": 2,\r\n    \"tiempoEstimado\": \"1 hora\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/preparar_pedido"
+			},
+			"response": []
+		},
+		{
+			"name": "6B modificar orden - LISTA",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accion\": \"modificar\",\r\n    \"objeto\": \"pedidos\",\r\n    \"id\": 2,    \r\n    \"estado\": 3    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/pedido_listo"
+			},
+			"response": []
+		},
+		{
+			"name": "7 entregar pedido",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"idPedido\": 2,    \r\n    \"idMesa\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/entregar_pedido"
+			},
+			"response": []
+		},
+		{
+			"name": "8 obtener mesas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost/obtener/mesas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"obtener",
+						"mesas"
+					],
+					"query": [
+						{
+							"key": "pdf",
+							"value": "test",
+							"disabled": true
+						},
+						{
+							"key": "csv",
+							"value": "test",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9 cerrar mesa",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"codigoPedido\": \"AAAA1\",\r\n    \"idMesa\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/cerrar_mesa"
+			},
+			"response": []
+		},
+		{
+			"name": "10 cerrar mesa",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{    \r\n    \"idMesa\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost/modificar/cerrar_mesa"
+			},
+			"response": []
+		},
+		{
+			"name": "11 alta encuesta",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idMesa",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "codigoPedido",
+							"value": "AAAA1",
+							"type": "text"
+						},
+						{
+							"key": "puntuacionMesa",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "puntuacionRestaurante",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "puntuacionMozo",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "puntuacionCocinero",
+							"value": "10",
+							"type": "text"
+						},
+						{
+							"key": "experiencia",
+							"value": "Me quiero ir",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost/encuesta/responder"
+			},
+			"response": []
+		},
+		{
+			"name": "12 obtener encuesta mejor puntuacion",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost/encuesta/mejor_puntuacion"
+			},
+			"response": []
+		},
+		{
+			"name": "13 obtener mesa mas usada",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEzNzU0NTMsImV4cCI6MTc2MTM3NTQ1MywiYXVkIjoiZmY5ODE0ODRjMjdhZDZhYTIyYTJiYmYwY2YzY2E1NGU0NzQyZTBlOCIsImRhdGEiOnsidXNlciI6IlBlcGUiLCJpZCI6MSwicm9sIjoic29jaW8ifSwiYXBwIjoiVFAgQ29tYW5kYSJ9.KsvnTRmm4k9VS9f1qg1c9Jz1i3tsi-8CtS3MAFQxnbY",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost/obtener/mesa_mas_usada"
+			},
+			"response": []
+		}
+	]
+}
