@@ -490,7 +490,7 @@
 			"response": []
 		},
 		{
-			"name": "9 cerrar mesa",
+			"name": "9 cobrar mesa",
 			"request": {
 				"method": "PUT",
 				"header": [
