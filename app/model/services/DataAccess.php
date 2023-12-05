@@ -161,7 +161,7 @@ class DataAccess
         }
     }
 
-    function Insert(string $table, array $columns, array $values, $pdo)
+    function Insert(string $table, array $columns, array $values)
     {
         try
         {
@@ -169,7 +169,7 @@ class DataAccess
             $placeholders = rtrim(str_repeat('?, ', count($values)), ', ');
     
             $query = "INSERT INTO `{$table}` ({$queryColumns}) VALUES ({$placeholders})";
-            $statement = $pdo->prepare($query);
+            $statement = self::$pdo->prepare($query);
     
             $statement->execute($values);
     
@@ -177,8 +177,7 @@ class DataAccess
         }
         catch(Exception $e)
         {
-            echo $e;
-            return false;
+            self::Catch($e);
         }
     }
 
