@@ -161,7 +161,7 @@ class DataAccess
         }
     }
 
-    function Insert(string $table, array $columns, array $values)
+    public static function Insert(string $table, array $columns, array $values)
     {
         try
         {
