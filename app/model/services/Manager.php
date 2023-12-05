@@ -238,7 +238,7 @@ class Manager
     {
         $payload = Statistics::MostUsedTable();
 
-        return self::ReturnResponse($request, $response, $payload);
+        return self::ReturnResponse($request, $response, $payload, 'Obtener mesa mas usada');
     }
 
     public static function GetAllStatistics($request, $response)
@@ -248,7 +248,7 @@ class Manager
         $payload .= Statistics::MostUsedTable();
         $payload .= Statistics::MostConsumedDish();        
 
-        return self::ReturnResponse($request, $response, $payload);
+        return self::ReturnResponse($request, $response, $payload, 'Obtener estadisticas');
     }
 
     public static function GetLogo($request, $response)
@@ -277,14 +277,160 @@ class Manager
             $mayorPuntaje = max($puntajeEnquestas);
             $mayorPuntajeIndex = array_search($mayorPuntaje, $puntajeEnquestas);
 
-            $payload = $encuestas[$mayorPuntajeIndex]['experiencia'];
+            $payload = "Mejor experiencia: {$encuestas[$mayorPuntajeIndex]['experiencia']}";
         }
         else
         {
             $payload = 'No hay encuestas que se hayan respondido.';
         }
 
-        return self::ReturnResponse($request, $response, $payload);
+        return self::ReturnResponse($request, $response, $payload, 'Obtener mejor encuesta');
+    }
+
+    public static function GetOrderDelay($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $payload = '';
+
+        $mesas = DataAccess::SelectWhere('mesas', null, ['codigo_mesa'], [$params['codigoMesa']]);
+        if($mesas)
+        {
+            $mesa = $mesas[0];
+            $pedidos = DataAccess::SelectWhere('pedidos', null, ['idMesa', 'codigoPedido'], [$mesa['id'], $params['codigoPedido']]);
+            
+            if($pedidos)
+            {
+                $productos = DataAccess::Select('productos');                
+                foreach($pedidos as $index => &$elem)
+                {
+                    if($elem['fechaBaja'] != null) // Se borran los pedidos que fueron cerrados para que no sean visibles
+                    {
+                        unset($pedidos[$index]);
+                    }
+                    else
+                    {
+                        foreach($elem as $key => &$value) // Se borra la fecha de baja del pedido.
+                        {                
+                            if($key != 'fechaBaja' && $value == null)
+                            {
+                                $value = 'no definido';                    
+                            }
+                            if($key == 'fechaBaja')
+                            {
+                                unset($elem['fechaBaja']);
+                            }
+                        }
+                    }
+                }
+                
+                foreach($pedidos as &$bit)
+                {
+                    $nombreProducto = '';
+                    for($i = 0; $i < count($productos); $i++)
+                    {                        
+                        if($productos[$i]['id'] == $bit['idProducto'])
+                        {                            
+                            $nombreProducto = $productos[$i]['descripcion'];
+                            break;
+                        }
+                    }
+        
+                    $bit = self::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+                }
+        
+                if(count($pedidos) == 0)
+                {
+                    $payload = 'No hay pedidos vigentes para mostrar.';
+                }
+
+                else
+                {
+                    $payload = [];
+                    foreach($pedidos as $pedido)
+                    {
+                        array_push($payload, "Producto: {$pedido['producto']} - Tiempo de inicio: {$pedido['tiempoInicio']} - Tiempo estimado: {$pedido['tiempoEstimado']}");
+                    }
+                }                
+            }
+            else
+            {
+                $payload = 'Pedido inexistente.';
+            }
+        }
+        else
+        {
+            $payload = 'Codigo de mesa erroneo.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload, 'Pedir orden por codigo - USUARIO');
+    }
+
+    public static function GetOrderDelayAll($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $payload = '';
+        $pedidos = DataAccess::Select('pedidos');
+            
+        if($pedidos)
+        {
+            $productos = DataAccess::Select('productos');
+            foreach($pedidos as $index => &$elem)
+            {
+                if($elem['fechaBaja'] != null) // Se borran los pedidos que fueron cerrados para que no sean visibles
+                {
+                    unset($pedidos[$index]);
+                }
+                else
+                {
+                    foreach($elem as $key => &$value) // Se borra la fecha de baja del pedido.
+                    {                
+                        if($key != 'fechaBaja' && $value == null)
+                        {
+                            $value = 'no definido';                    
+                        }
+                        if($key == 'fechaBaja')
+                        {
+                            unset($elem['fechaBaja']);
+                        }
+                    }
+                }
+            }
+            
+            foreach($pedidos as &$bit)
+            {
+                $nombreProducto = '';
+                for($i = 0; $i < count($productos); $i++)
+                {                        
+                    if($productos[$i]['id'] == $bit['idProducto'])
+                    {                            
+                        $nombreProducto = $productos[$i]['descripcion'];
+                        break;
+                    }
+                }
+    
+                $bit = self::AssocArrayInsertAt($bit, 'producto', $nombreProducto, 7);
+            }
+    
+            if(count($pedidos) == 0)
+            {
+                $payload = 'No hay pedidos vigentes para mostrar.';
+            }
+
+            else
+            {
+                $payload = [];
+                foreach($pedidos as $pedido)
+                {
+                    array_push($payload, "Codigo: {$pedido['codigoPedido']} - Producto: {$pedido['producto']} - Tiempo de inicio: {$pedido['tiempoInicio']} - Tiempo estimado: {$pedido['tiempoEstimado']}");
+                }
+            }
+        }
+        else
+        {
+            $payload = 'No hay pedidos vigentes para mostrar.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload, 'Pedir ordenes y demora');
     }
 
     ///////////////////////////////////////////////////////////// PUT
@@ -400,12 +546,106 @@ class Manager
         {
             $mesa = $mesa[0];
             DataAccess::Update('mesas', ['estado'], [5], 'id', $params['id']);
-            return self::ReturnResponse($request, $response, "La mesa {$params['id']} ha sido abierta.");
+            return self::ReturnResponse($request, $response, "La mesa {$params['id']} ha sido abierta.", 'Abrir mesa');
         }
         else
         {
-            return self::ReturnResponse($request, $response, 'La mesa buscada no existe.');
+            return self::ReturnResponse($request, $response, 'La mesa buscada no existe.', 'Abrir mesa');
         }
+    }
+
+    public static function StartPreparingOrder($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $pedido = DataAccess::SelectWhere('pedidos', null, ['id'], [$params['id']]);
+        $payload = '';
+
+        if($pedido)
+        {
+            $pedido = $pedido[0];
+            $fecha = new DateTime();
+            $fecha = $fecha->format('Y-m-d H:i:s');
+
+            DataAccess::Update('pedidos', ['tiempoInicio', 'estado', 'tiempoEstimado'], [$fecha, 2, $params['tiempoEstimado']], 'id', $params['id']);
+            $payload = 'Pedidio iniciado con fecha-hora: ' . $fecha;
+        }
+        else
+        {
+            $payload = 'El pedido buscado no existe.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload, 'Iniciar pedido');
+    }
+
+    public static function OrderReady($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $pedido = DataAccess::SelectWhere('pedidos', null, ['id'], [$params['id']]);
+        $payload = '';
+
+        if($pedido)
+        {
+            $pedido = $pedido[0];
+            $fecha = new DateTime();
+            $fecha = $fecha->format('Y-m-d H:i:s');
+
+            DataAccess::Update('pedidos', ['tiempoEntregado', 'estado'], [$fecha, 3], 'id', $params['id']);
+            $payload = 'Pedidio listo con fecha-hora: ' . $fecha;
+        }
+        else
+        {
+            $payload = 'El pedido buscado no existe.';
+        }
+
+        return self::ReturnResponse($request, $response, $payload, 'Pedido listo');
+    }
+
+    public static function DeliverOrder($request, $response)
+    {
+        $params = self::GetRequest($request);
+
+        DataAccess::Update('pedidos', ['estado'], [4], 'id', $params['idPedido']);
+        DataAccess::Update('mesas', ['estado'], [2], 'id', $params['idMesa']);
+
+        return self::ReturnResponse($request, $response, 'Pedido entregado a la mesa.', 'Entregar pedido');
+    }
+
+    public static function CloseTable($request, $response)
+    {
+        $params = self::GetRequest($request);
+        $fecha = new DateTime();
+        $fecha = $fecha->format('Y-m-d H:i:s');
+
+        DataAccess::Update('pedidos', ['fechaBaja'], [$fecha], 'codigoPedido', $params['codigoPedido']);
+        DataAccess::Update('mesas', ['estado'], [3], 'id', $params['idMesa']);
+
+        $pedidos = DataAccess::SelectWhere('pedidos', null, ['codigoPedido'], [$params['codigoPedido']]);
+        
+        $productos = DataAccess::Select('productos');
+        $recaudado = 0;
+        
+        foreach($pedidos as $pedido)
+        {            
+            foreach($productos as $producto)
+            {                
+                if($producto['id'] == $pedido['idProducto'])
+                {
+                    $recaudado += intval($pedido['cantidadProducto']) * intval($producto['precio']);
+                    break;
+                }
+            }
+        }        
+        
+        DataAccess::Insert('recaudacion', ['codigoPedido', 'recaudado'], [$params['codigoPedido'], $recaudado]);
+
+        return self::ReturnResponse($request, $response, 'Mesa cerrada. Cobrando...', 'Cerrar mesa');
+    }
+
+    public static function CloseTableSocio($request, $response)
+    {
+        $params = self::GetRequest($request);
+        DataAccess::Update('mesas', ['estado'], [4], 'id', $params['idMesa']);
+        return self::ReturnResponse($request, $response, 'Mesa cerrada. A limpiar', 'Cerrar mesa total');
     }
     
     ///////////////////////////////////////////////////////////// POST
@@ -657,7 +897,7 @@ class Manager
                     {
                         mkdir('./img', 0777, true);
                     }
-                    $targetPath = './img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
+                    $targetPath = './app/img/' . date_format(new DateTime(), 'Y-m-d_H-i-s') . '_' . $nombreCliente . '_Mesa_' . $idMesa . '.jpg';
                     $uploadedFiles['fotoMesa']->moveTo($targetPath);
                     $fotoMesa = $targetPath;
 

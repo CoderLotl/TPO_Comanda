@@ -62,7 +62,9 @@ $app->group('/obtener', function (RouteCollectorProxy $group)
     $group->get('/mesas', \Model\Services\Manager::class . '::GetTables')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->get('/productos', \Model\Services\Manager::class . '::GetProducts')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');; // Devuelve todos los usuarios por rol
     $group->get('/ordenes_codigo', \Model\Services\Manager::class . '::GetOrdersByCode'); // Devuelve todas las ordenes de un mismo codigo, tipo AAAA1
-    $group->get('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');; // Devuelve todas las ordenes visibles para el tipo de usuario.
+    $group->get('/ordenes_demora', \Model\Services\Manager::class . '::GetOrderDelay');
+    $group->get('/ordenes_demora_todas', \Model\Services\Manager::class . '::GetOrderDelayAll');
+    $group->get('/ordenes_todas', \Model\Services\Manager::class . '::GetAllOrders')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo'); // Devuelve todas las ordenes visibles para el tipo de usuario.
     $group->get('/mesa_mas_usada', \Model\Services\Manager::class . '::GetMostUsedTable')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
@@ -83,6 +85,11 @@ $app->group('/modificar', function (RouteCollectorProxy $group)
     $group->put('/abrir_mesa', \Model\Services\Manager::class . '::OpenTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->put('/producto', \Model\Services\Manager::class . '::UpdateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->put('/usuarios', \Model\Services\Manager::class . '::UpdateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
+    $group->put('/preparar_pedido', \Model\Services\Manager::class . '::StartPreparingOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/pedido_listo', \Model\Services\Manager::class . '::OrderReady')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/entregar_pedido', \Model\Services\Manager::class . '::DeliverOrder')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
+    $group->put('/cerrar_mesa', \Model\Services\Manager::class . '::CloseTable')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
+    $group->put('/cerrar_mesa_total', \Model\Services\Manager::class . '::CloseTableSocio')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
 });
 
 $app->group('/baja', function (RouteCollectorProxy $group)
