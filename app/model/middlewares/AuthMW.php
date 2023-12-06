@@ -72,7 +72,8 @@ class AuthMW
      */
     private static function ValidateAction($action, $object, $userType, $_req)
     {        
-        
+        echo isset(USER_RIGHTS[$userType][$action]);
+        echo in_array($object, USER_RIGHTS[$userType][$action]);
         if( USER_RIGHTS[$userType] == '*' ) // Si el usuario tiene todos los derechos ...
         {
             return true;

@@ -73,20 +73,20 @@ $app->group('/alta', function (RouteCollectorProxy $group)
     $group->post('/mesas', \Model\Services\Manager::class . '::CreateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->post('/usuarios', \Model\Services\Manager::class . '::CreateEmployee')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
     $group->post('/productos', \Model\Services\Manager::class . '::CreateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->post('/pedidos', \Model\Services\Manager::class . '::CreateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->post('/agregar_foto_pedido', \Model\Services\Manager::class . '::UploadOrderImage')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->post('/pedidos', \Model\Services\Manager::class . '::CreateOrder')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
+    $group->post('/agregar_foto_pedido', \Model\Services\Manager::class . '::UploadOrderImage')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
 });
 
 $app->group('/modificar', function (RouteCollectorProxy $group)
 {
     $group->put('/entidad', \Model\Services\Manager::class . '::UpdateEntity')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
     $group->put('/orden', \Model\Services\Manager::class . '::UpdateOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateOrderModificationAction');
-    $group->put('/mesa', \Model\Services\Manager::class . '::UpdateTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->put('/abrir_mesa', \Model\Services\Manager::class . '::OpenTable')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->put('/producto', \Model\Services\Manager::class . '::UpdateProduct')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->put('/usuarios', \Model\Services\Manager::class . '::UpdateUser')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
-    $group->put('/preparar_pedido', \Model\Services\Manager::class . '::StartPreparingOrder')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
-    $group->put('/pedido_listo', \Model\Services\Manager::class . '::OrderReady')->add(\Model\Middlewares\AuthMW::class . '::ValidateUser');
+    $group->put('/mesa', \Model\Services\Manager::class . '::UpdateTable')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
+    $group->put('/abrir_mesa', \Model\Services\Manager::class . '::OpenTable')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
+    $group->put('/producto', \Model\Services\Manager::class . '::UpdateProduct')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
+    $group->put('/usuarios', \Model\Services\Manager::class . '::UpdateUser')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
+    $group->put('/preparar_pedido', \Model\Services\Manager::class . '::StartPreparingOrder')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
+    $group->put('/pedido_listo', \Model\Services\Manager::class . '::OrderReady')->add(\Model\Middlewares\AuthMW::class . '::WardGrupo');
     $group->put('/entregar_pedido', \Model\Services\Manager::class . '::DeliverOrder')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
     $group->put('/cerrar_mesa', \Model\Services\Manager::class . '::CloseTable')->add(\Model\Middlewares\AuthMW::class . '::WardMozo');
     $group->put('/cerrar_mesa_total', \Model\Services\Manager::class . '::CloseTableSocio')->add(\Model\Middlewares\AuthMW::class . '::WardSocio');
